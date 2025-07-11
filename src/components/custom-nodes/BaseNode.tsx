@@ -1,211 +1,270 @@
-import {Handle, Node, NodeProps, NodeResizer, Position, useReactFlow, useUpdateNodeInternals} from '@xyflow/react';
-import toast from "react-hot-toast";
+import {
+    Handle,
+    Node,
+    NodeProps,
+    NodeResizer,
+    Position,
+    useReactFlow,
+    useUpdateNodeInternals,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import {CSSProperties, useEffect, useState} from "react";
-import {BlockPicker, ColorResult} from "react-color";
-import EditableContent from "@/components/shared/EditableContent";
-import { CiCirclePlus } from "react-icons/ci";
-import { IoIosCloseCircleOutline } from "react-icons/io";
-import { PiTrashSimpleThin } from "react-icons/pi";
-import { FaArrowTurnDown, FaArrowTurnUp, FaArrowRightArrowLeft } from "react-icons/fa6";
-
-const MAX_HANDLES = 5;
-
-type HandleType = "source" | "target" | "both";
+import { CSSProperties, Fragment, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import EditableContent from '@/components/shared/EditableContent';
+import { BiEdit, BiSave, BiTrash, BiX } from 'react-icons/bi';
+import { IconType } from 'react-icons';
 
 export type HandleDef = {
     id: string;
-    type: HandleType;
     position: Position;
     style: CSSProperties;
-}
-export type BaseNodeData = { label: string; name: string; color: string; handles?: HandleDef[] };
+};
+
+export type BaseNodeData = {
+    label: string;
+    name: string;
+    color: string;
+    icon: IconType;
+    handles?: HandleDef[];
+};
+
 export type BaseNodeType = Node<BaseNodeData, 'process'>;
 
-export default function BaseNode({data, id, selected, isConnectable}: NodeProps<BaseNodeType>) {
+export type SizeOption = {
+    key: 'small' | 'medium' | 'large';
+    width: number;
+    height: number;
+    labelFontSize: string;
+    nameFontSize: string;
+};
 
+export const NODE_SIZE_OPTIONS: SizeOption[] = [
+    { key: 'small',  width: 180, height: 80,  labelFontSize: '1rem',     nameFontSize: '0.875rem' },
+    { key: 'medium', width: 225, height: 100, labelFontSize: '1.125rem', nameFontSize: '1rem'     },
+    { key: 'large',  width: 270, height: 120, labelFontSize: '1.25rem',  nameFontSize: '1.125rem'  },
+];
+
+export default function BaseNode({
+                                     data,
+                                     id,
+                                     selected,
+                                     isConnectable,
+                                 }: NodeProps<BaseNodeType>) {
     const updateNodeInternals = useUpdateNodeInternals();
-    const {setNodes, getNode} = useReactFlow();
-    const [showPopup, setShowPopup] = useState(false);
-    const [showColorPaltte, setShowColorPaltte] = useState(false);
-    const [nodeColor, setNodeColor] = useState<string>(data.color);
-
+    const { getNode, setNodes } = useReactFlow();
     const node = getNode(id);
-    const width = node?.width ?? 120;
+
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [labelValue, setLabelValue] = useState<string>(data.label);
+    const [sizeKey, setSizeKey] = useState<SizeOption['key']>('medium');
+    const currentSize = NODE_SIZE_OPTIONS.find(o => o.key === sizeKey)!;
+    const inputRef = useRef<HTMLInputElement>(null);
+    const EDIT_INPUT_OFFSET = 70;
 
     useEffect(() => {
-        updateNodeInternals(id);
-    }, [id, selected, updateNodeInternals]);
-
-    const handles = data.handles ?? [
-        {id: `${id}-left`, type: "target", position: Position.Left},
-        {id: `${id}-right`, type: "source", position: Position.Right}
-    ];
-
-    const addHandle = (type: HandleType) => {
-        if(handles.length >= MAX_HANDLES + 2) {
-            toast.error("Cannot add more joining points.")
-            return;
-        }
-
-        let newHandle: HandleDef = {
-            id: `${id}-handle-${handles.length}`,
-            type: type,
-            position: Position.Bottom,
-            style: {left: width/6 * (handles.length-1)},
-        };
-
-        newHandle = {
-            id: `${id}-handle-${handles.length}`,
-            type: type,
-            position: Position.Bottom,
-            style: {left: width/6 * (handles.length-1)},
-        };
-
-        setNodes((nodes)=>(
-            nodes.map((node)=>node.id===id ? {...node, data: {...node.data, handles: [...handles, newHandle]}} : node)
-        ));
-
-        updateNodeInternals(id);
-        setShowPopup(false);
-    }
-
-    const deleteHandle = () => {
-        handles.pop();
-        setNodes((nodes)=>(
-            nodes.map((node)=>({...node, data: {...node.data, handles: [...handles]}}))
-        ));
-        updateNodeInternals(id);
-    }
-
-    const handlePlusClick = () => {
-        setShowPopup(prev => !prev);
-    }
-
-    const openColorPalette = () => {
-        setShowColorPaltte(prev=>!prev);
-    }
-
-
-    const changeNodeColor = (color: ColorResult) => {
-        const hex = color.hex;
-        setNodeColor(hex);
-
-        setNodes((nds) =>
-            nds.map((n) =>
+        setNodes(nodes =>
+            nodes.map(n =>
                 n.id === id
-                    ? {
-                        ...n,
-                        data: {
-                            ...n.data,
-                            color: hex,
-                        },
-                    }
+                    ? { ...n, width: currentSize.width, height: currentSize.height }
                     : n
             )
         );
-
         updateNodeInternals(id);
+    }, [currentSize.width, currentSize.height, id, setNodes, updateNodeInternals]);
+
+    useEffect(() => {
+        if (isEditing && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isEditing]);
+
+    const handles = data.handles ?? [
+        {
+            id: `${id}-left`,
+            position: Position.Left,
+            style: { width: 12, height: 12, borderRadius: 6, zIndex: 50 },
+        },
+        {
+            id: `${id}-right`,
+            position: Position.Right,
+            style: { width: 12, height: 12, borderRadius: 6, zIndex: 50 },
+        },
+        {
+            id: `${id}-top-1`,
+            position: Position.Top,
+            style: { width: 12, height: 12, borderRadius: 6, left: (node?.width ?? 180) * 0.25, zIndex: 50 },
+        },
+        {
+            id: `${id}-top-2`,
+            position: Position.Top,
+            style: { width: 12, height: 12, borderRadius: 6, left: (node?.width ?? 180) * 0.75, zIndex: 50 },
+        },
+        {
+            id: `${id}-bottom-1`,
+            position: Position.Bottom,
+            style: { width: 12, height: 12, borderRadius: 6, left: (node?.width ?? 180) * 0.25, zIndex: 50 },
+        },
+        {
+            id: `${id}-bottom-2`,
+            position: Position.Bottom,
+            style: { width: 12, height: 12, borderRadius: 6, left: (node?.width ?? 180) * 0.75, zIndex: 50 },
+        },
+    ];
+
+    const menuBounce = { type: 'spring', stiffness: 300, damping: 20 };
+
+    const deleteNode = (nodeId: string) => {
+        if (!selected) return;
+        setNodes(nodes => nodes.filter(n => n.id !== nodeId));
+        updateNodeInternals(id);
+    };
+
+    const saveLabel = () => {
+        setNodes(nodes =>
+            nodes.map(n =>
+                n.id === id ? { ...n, data: { ...n.data, label: labelValue } } : n
+            )
+        );
+        setIsEditing(false);
+        updateNodeInternals(id);
+    };
+
+    const cancelEdit = () => {
+        setLabelValue(data.label);
+        setIsEditing(false);
     };
 
     return (
         <>
-            <NodeResizer nodeId={id} isVisible={selected} minWidth={120} minHeight={80} autoScale />
-            {handles.flatMap((h) =>
-                h.type === 'both'
-                    ? [
-                        <Handle
-                            key={`${h.id}-source`}
-                            id={`${h.id}-source`}
-                            type="source"
-                            position={h.position}
-                            style={h.style}
-                            isConnectable={isConnectable}
-                            className="z-50"
-                        />,
-                        <Handle
-                            key={`${h.id}-target`}
-                            id={`${h.id}-target`}
-                            type="target"
-                            position={h.position}
-                            style={h.style}
-                            isConnectable={isConnectable}
-                            className="z-50"
-                        />,
-                    ]
-                    : (
-                        <Handle
-                            key={h.id}
-                            id={h.id}
-                            type={h.type}
-                            position={h.position}
-                            style={h.style}
-                            isConnectable={isConnectable}
-                            className="z-50"
-                        />
-                    )
-            )}
-            <div className="relative w-full h-full bg-white">
-                <EditableContent id={id} data={data} />
-                {selected && (
-                    <>
-                        <div className="relative left-[105%] bottom-full flex flex-col gap-1 w-fit items-center bg-white border p-1 rounded shadow">
-                            {showPopup ? (
-                                <IoIosCloseCircleOutline
-                                    onClick={handlePlusClick}
-                                    className="w-3 h-3 cursor-pointer hover:text-blue-500"
-                                />
-                            ) : (
-                                <CiCirclePlus
-                                    onClick={handlePlusClick}
-                                    className="w-3 h-3 cursor-pointer hover:text-blue-500"
-                                />
-                            )}
+            <NodeResizer
+                nodeId={id}
+                isVisible={selected}
+                minWidth={currentSize.width}
+                minHeight={currentSize.height}
+                autoScale
+                lineClassName="z-50"
+            />
 
-                            <PiTrashSimpleThin
-                                onClick={deleteHandle}
-                                className="w-3 h-3 cursor-pointer hover:text-blue-500"
+            {handles.map(h => (
+                <Fragment key={h.id}>
+                    <Handle
+                        type="source"
+                        id={`${h.id}-source`}
+                        position={h.position}
+                        isConnectable={isConnectable}
+                        style={h.style}
+                    />
+                    <Handle
+                        type="target"
+                        id={`${h.id}-target`}
+                        position={h.position}
+                        isConnectable={isConnectable}
+                        style={h.style}
+                    />
+                </Fragment>
+            ))}
+
+            <div
+                tabIndex={0}
+                onClick={e => (e.currentTarget as HTMLDivElement).focus()}
+                onKeyDown={e => {
+                    if (e.key === 'Delete') deleteNode(id);
+                }}
+                className="relative w-full h-full"
+                style={{
+                    width: currentSize.width,
+                    height: currentSize.height,
+                }}
+            >
+                <EditableContent
+                    id={id}
+                    data={data}
+                    labelFontSize={currentSize.labelFontSize}
+                    nameFontSize={currentSize.nameFontSize}
+                />
+
+                {selected && isEditing && (
+                    <div
+                        onMouseDown={e => e.stopPropagation()}
+                        className="absolute left-1/2 transform -translate-x-1/2 w-full z-[999]"
+                        style={{ bottom: `${currentSize.height + EDIT_INPUT_OFFSET}px` }}
+                    >
+                        <div className="w-full flex items-center bg-white border border-gray-200 rounded-md shadow px-2 py-1">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={labelValue}
+                                onChange={e => setLabelValue(e.target.value)}
+                                onMouseDown={e => e.stopPropagation()}
+                                className="w-full border border-gray-300 rounded-sm focus:outline-none py-0.5 px-1.5"
                             />
-                            <div onClick={openColorPalette} className="w-2.5 h-2.5 rounded-full border-[1px] border-gray-600" style={{backgroundColor: nodeColor}}></div>
+                            <button
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={saveLabel}
+                                className="ml-2 p-1 rounded hover:bg-gray-100 cursor-pointer"
+                            >
+                                <BiSave className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <button
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={cancelEdit}
+                                className="ml-2 p-1 rounded hover:bg-gray-100 cursor-pointer"
+                            >
+                                <BiX className="w-5 h-5 text-gray-600" />
+                            </button>
                         </div>
+                    </div>
+                )}
 
-                        {showColorPaltte && (
-                            <div className="absolute top-full left-[80px] ml-2 z-50 transform scale-75 origin-top-left">
-                                <BlockPicker
-                                    color={nodeColor}
-                                    onChangeComplete={changeNodeColor}
-                                    className="border"
-                                    width="140px"
-                                />
-                            </div>
-                        )}
+                {selected && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={menuBounce}
+                        className="menu"
+                    >
+                        <div className="triangle" />
+                        <motion.div
+                            className="relative group p-1 rounded-md hover:bg-gray-100"
+                            whileHover={{ scale: 1.2 }}
+                            transition={menuBounce}
+                            onClick={() => deleteNode(id)}
+                        >
+                            <BiTrash className="w-5 h-5 text-gray-600 cursor-pointer" />
+                            <div className="tooltip">Delete Node</div>
+                        </motion.div>
 
-                        {showPopup && (
-                            <div className="absolute -top-2 mt-2 left-[125%] z-50 bg-white border border-black/5 rounded shadow-md min-w-20">
-                                <button onClick={() => addHandle("source")} className="dropdown-btn">
-                                    <FaArrowTurnDown className="w-2 h-2" /><p>Source</p>
-                                </button>
-                                <button onClick={() => addHandle("target")} className="dropdown-btn">
-                                    <FaArrowTurnUp className="w-2 h-2" /><p>Target</p>
-                                </button>
-                                <button onClick={() => addHandle("both")} className="dropdown-btn">
-                                    <FaArrowRightArrowLeft className="w-2 h-2" /><p>Both</p>
-                                </button>
-                            </div>
-                        )}
-                    </>
+                        <motion.div
+                            className="relative group p-1 rounded-md hover:bg-gray-100"
+                            whileHover={{ scale: 1.2 }}
+                            transition={menuBounce}
+                            onClick={() => setIsEditing(prev => !prev)}
+                        >
+                            <BiEdit className="w-5 h-5 text-gray-600 cursor-pointer" />
+                            <div className="tooltip">Rename Label</div>
+                        </motion.div>
+
+                        <div className="w-px h-6 bg-gray-300" />
+
+                        {NODE_SIZE_OPTIONS.map(option => (
+                            <motion.div
+                                key={option.key}
+                                className="relative group p-1 rounded-md hover:bg-gray-100"
+                                whileHover={{ scale: 1.2 }}
+                                transition={menuBounce}
+                                onClick={() => setSizeKey(option.key)}
+                            >
+                <span className="text-sm font-medium text-gray-600 cursor-pointer">
+                  {option.key.charAt(0).toUpperCase()}
+                </span>
+                                <div className="tooltip">
+                                    {option.key.charAt(0).toUpperCase() + option.key.slice(1)}
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
                 )}
             </div>
-
-            {showPopup && (
-                <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => {
-                        setShowPopup(false)
-                        setShowColorPaltte(false)
-                    }}
-                />
-            )}
         </>
     );
 }
