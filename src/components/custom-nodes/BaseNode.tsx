@@ -177,7 +177,6 @@ export default function BaseNode({
                 }}
             >
                 <EditableContent
-                    id={id}
                     data={data}
                     labelFontSize={currentSize.labelFontSize}
                     nameFontSize={currentSize.nameFontSize}
@@ -186,6 +185,7 @@ export default function BaseNode({
                 {selected && isEditing && (
                     <div
                         onMouseDown={e => e.stopPropagation()}
+                        onClick={e => e.stopPropagation()}
                         className="absolute left-1/2 transform -translate-x-1/2 w-full z-[999]"
                         style={{ bottom: `${currentSize.height + EDIT_INPUT_OFFSET}px` }}
                     >
@@ -196,18 +196,19 @@ export default function BaseNode({
                                 value={labelValue}
                                 onChange={e => setLabelValue(e.target.value)}
                                 onMouseDown={e => e.stopPropagation()}
+                                onClick={e => e.stopPropagation()}
                                 className="w-full border border-gray-300 rounded-sm focus:outline-none py-0.5 px-1.5"
                             />
                             <button
                                 onMouseDown={e => e.stopPropagation()}
-                                onClick={saveLabel}
+                                onClick={e => { e.stopPropagation(); saveLabel(); }}
                                 className="ml-2 p-1 rounded hover:bg-gray-100 cursor-pointer"
                             >
                                 <BiSave className="w-5 h-5 text-gray-600" />
                             </button>
                             <button
                                 onMouseDown={e => e.stopPropagation()}
-                                onClick={cancelEdit}
+                                onClick={e => { e.stopPropagation(); cancelEdit(); }}
                                 className="ml-2 p-1 rounded hover:bg-gray-100 cursor-pointer"
                             >
                                 <BiX className="w-5 h-5 text-gray-600" />

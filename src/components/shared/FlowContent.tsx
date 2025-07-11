@@ -33,7 +33,7 @@ import { AiOutlineApi } from "react-icons/ai";
 import { toast, Toaster } from "react-hot-toast";
 import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 
 export default function FlowContent() {
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -45,28 +45,28 @@ export default function FlowContent() {
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
     const typeInfo: Record<string, { icon: IconType; defaultName: string; color: string }> = {
-        cloud: { icon: FaCloud, defaultName: "Cloud", color: "#A0E7E5" },
-        database: { icon: FaDatabase, defaultName: "Database", color: "#B4F8C8" },
-        queue: { icon: MdQueue, defaultName: "Queue", color: "#FBE7C6" },
-        compute: { icon: FaMicrochip, defaultName: "Compute", color: "#FFAEBC" },
-        storage: { icon: FaHdd, defaultName: "Storage", color: "#B28DFF" },
-        api: { icon: AiOutlineApi, defaultName: "API", color: "#FFDFD3" },
-        user: { icon: FaUser, defaultName: "User", color: "#E0C3FC" },
-        decision: { icon: FaQuestionCircle, defaultName: "Decision", color: "#C3FBD8" },
-        start: { icon: FaPlay, defaultName: "Start", color: "#DEF9C4" },
-        end: { icon: FaStop, defaultName: "End", color: "#FFC9DE" },
-        annotation: { icon: FaRegComment, defaultName: "Annotation", color: "#D3E4CD" }
+        cloud:      { icon: FaCloud,          defaultName: "Cloud",      color: "#A0E7E5" },
+        database:   { icon: FaDatabase,       defaultName: "Database",   color: "#B4F8C8" },
+        queue:      { icon: MdQueue,          defaultName: "Queue",      color: "#FBE7C6" },
+        compute:    { icon: FaMicrochip,      defaultName: "Compute",    color: "#FFAEBC" },
+        storage:    { icon: FaHdd,            defaultName: "Storage",    color: "#B28DFF" },
+        api:        { icon: AiOutlineApi,     defaultName: "API",        color: "#FFDFD3" },
+        user:       { icon: FaUser,           defaultName: "User",       color: "#E0C3FC" },
+        decision:   { icon: FaQuestionCircle, defaultName: "Decision",   color: "#C3FBD8" },
+        start:      { icon: FaPlay,           defaultName: "Start",      color: "#DEF9C4" },
+        end:        { icon: FaStop,           defaultName: "End",        color: "#FFC9DE" },
+        annotation: { icon: FaRegComment,     defaultName: "Annotation", color: "#D3E4CD" }
     };
     const nodeTypesList = Object.keys(typeInfo);
 
     const onNodesChange: OnNodesChange = useCallback((changes) => {
-        setNodes((nds) => applyNodeChanges(changes, nds));
+        setNodes(nds => applyNodeChanges(changes, nds));
     }, []);
     const onEdgesChange: OnEdgesChange = useCallback((changes) => {
-        setEdges((eds) => applyEdgeChanges(changes, eds));
+        setEdges(eds => applyEdgeChanges(changes, eds));
     }, []);
     const onConnect = useCallback((c: Connection) => {
-        setEdges((eds) => addEdge(c, eds));
+        setEdges(eds => addEdge(c, eds));
     }, []);
 
     const intersects = useCallback(
@@ -84,7 +84,7 @@ export default function FlowContent() {
     const addNodeOfType = useCallback(
         (typeKey: string) => {
             const info = typeInfo[typeKey];
-            const occupied = nodes.map((n) => ({
+            const occupied = nodes.map(n => ({
                 x: n.position.x,
                 y: n.position.y,
                 width: n.width ?? 180,
@@ -96,8 +96,7 @@ export default function FlowContent() {
             const { width: pxW, height: pxH } = wrap.getBoundingClientRect();
             const viewW = pxW / zoom;
             const viewH = pxH / zoom;
-            const NEW_W = 180,
-                NEW_H = 80;
+            const NEW_W = 180, NEW_H = 80;
             let pos = { x: panX, y: panY },
                 tries = 0;
             do {
@@ -110,7 +109,7 @@ export default function FlowContent() {
                     return;
                 }
             } while (
-                occupied.some((o) =>
+                occupied.some(o =>
                     intersects(o, { x: pos.x, y: pos.y, width: NEW_W, height: NEW_H })
                 )
                 );
@@ -128,29 +127,22 @@ export default function FlowContent() {
                 width: NEW_W,
                 height: NEW_H
             };
-            setNodes((nds) => [...nds, newNode]);
+            setNodes(nds => [...nds, newNode]);
         },
         [nodes, getViewport, intersects, typeInfo]
     );
 
-    const containerVariants = {
+    const containerVariants: Variants = {
         hidden: {
-            transition: {
-                staggerChildren: 0.1,
-                staggerDirection: 1
-            }
+            transition: { staggerChildren: 0.1, staggerDirection: 1 }
         },
         show: {
             opacity: 1,
-            transition: {
-                staggerChildren: 0.05,
-                staggerDirection: -1,
-                delayChildren: 0.03
-            }
+            transition: { staggerChildren: 0.05, staggerDirection: -1, delayChildren: 0.03 }
         }
     };
 
-    const childVariants = {
+    const childVariants: Variants = {
         hidden: {
             y: 40,
             opacity: 0,
@@ -175,7 +167,7 @@ export default function FlowContent() {
         }
     };
 
-    const tooltipVariants = {
+    const tooltipVariants: Variants = {
         hidden: { opacity: 0, scale: 0.8 },
         visible: {
             opacity: 1,
@@ -199,7 +191,7 @@ export default function FlowContent() {
                             exit="hidden"
                             className="flex flex-col items-center gap-4 mb-4"
                         >
-                            {nodeTypesList.map((typeKey) => {
+                            {nodeTypesList.map(typeKey => {
                                 const { icon: IconComp, color } = typeInfo[typeKey];
                                 return (
                                     <motion.div
@@ -236,7 +228,7 @@ export default function FlowContent() {
                                                     </div>
                                                     <MdPlayArrow
                                                         className="w-8 h-8 relative right-3"
-                                                        style={{ color: color }}
+                                                        style={{ color }}
                                                     />
                                                 </motion.div>
                                             )}
@@ -250,9 +242,9 @@ export default function FlowContent() {
 
                 <motion.button
                     whileTap={{ scale: 1.3 }}
-                    whileHover={{scale: 1.05}}
+                    whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 500, damping: 10, bounce: 0.6 }}
-                    onClick={() => setShowMenu((v) => !v)}
+                    onClick={() => setShowMenu(v => !v)}
                     className="w-16 h-16 rounded-full bg-blue-500 text-white shadow-xl hover:bg-blue-600 shadow-blue-500/40 hover:shadow-blue-500/70 flex items-center justify-center cursor-pointer"
                 >
                     <GoPlus size={40} />

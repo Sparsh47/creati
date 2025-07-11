@@ -2,13 +2,12 @@ import {BaseNodeData} from "@/components/custom-nodes/BaseNode";
 import {IconType} from "react-icons";
 
 interface EditableLabelProps {
-    id: string;
     data: BaseNodeData & { icon: IconType };
     nameFontSize: string;
     labelFontSize: string;
 }
 
-export default function EditableContent({ id, data, labelFontSize, nameFontSize }: EditableLabelProps) {
+export default function EditableContent({ data, labelFontSize, nameFontSize }: EditableLabelProps) {
     const Icon = data.icon;
     return (
         <div
