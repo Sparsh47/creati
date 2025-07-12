@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { CSSProperties, Fragment, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import {motion, Transition} from 'framer-motion';
 import EditableContent from '@/components/shared/EditableContent';
 import { BiEdit, BiSave, BiTrash, BiX } from 'react-icons/bi';
 import { IconType } from 'react-icons';
@@ -111,7 +111,7 @@ export default function BaseNode({
         },
     ];
 
-    const menuBounce = { type: 'spring', stiffness: 300, damping: 20 };
+    const menuBounce: Transition = { type: 'spring', stiffness: 300, damping: 20 };
 
     const deleteNode = (nodeId: string) => {
         if (!selected) return;

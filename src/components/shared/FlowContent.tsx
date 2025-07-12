@@ -35,11 +35,16 @@ import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 
+type FlowNode = Node<BaseNodeData & { icon: IconType }> & {
+    width: number;
+    height: number;
+};
+
 export default function FlowContent() {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const { getViewport } = useReactFlow();
 
-    const [nodes, setNodes] = useState<Node<BaseNodeData & { icon: IconType }>[]>([]);
+    const [nodes, setNodes] = useState<FlowNode[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
     const [showMenu, setShowMenu] = useState(false);
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
@@ -60,7 +65,7 @@ export default function FlowContent() {
     const nodeTypesList = Object.keys(typeInfo);
 
     const onNodesChange: OnNodesChange = useCallback((changes) => {
-        setNodes(nds => applyNodeChanges(changes, nds));
+        setNodes(nds => applyNodeChanges(changes, nds) as FlowNode[]);
     }, []);
     const onEdgesChange: OnEdgesChange = useCallback((changes) => {
         setEdges(eds => applyEdgeChanges(changes, eds));
@@ -114,7 +119,7 @@ export default function FlowContent() {
                 )
                 );
             const id = `node-${Date.now()}`;
-            const newNode: Node<BaseNodeData & { icon: IconType }> = {
+            const newNode: FlowNode = {
                 id,
                 type: "baseNode",
                 position: pos,
