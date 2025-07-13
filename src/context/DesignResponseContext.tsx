@@ -1,11 +1,8 @@
 "use client";
 
-import React, {createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState} from "react";
-import {generateResponse} from "@/lib/gemini";
-import {generatePrompt} from "@/constants/prompt";
+import React, {createContext, Dispatch, ReactNode, SetStateAction, useContext, useState} from "react";
 import {Edge, Node} from "@xyflow/react";
 import {BaseNodeData} from "@/components/custom-nodes/BaseNode";
-import type {IconType} from "react-icons";
 
 type DesignResponseContextValue = {
     nodes: FlowNode[];
@@ -16,7 +13,7 @@ type DesignResponseContextValue = {
     setUserPrompt: Dispatch<SetStateAction<string>>
 }
 
-export type FlowNode = Node<BaseNodeData & { icon: IconType }> & {
+export type FlowNode = Node<BaseNodeData & { icon: string }> & {
     width: number;
     height: number;
 };

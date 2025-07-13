@@ -56,7 +56,6 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
             setEdges(parsedEdges);
 
             router.push("/flow");
-            setLoading(false);
         } catch (error) {
             console.error("Failed to fetch or parse Gemini response:", error);
         }

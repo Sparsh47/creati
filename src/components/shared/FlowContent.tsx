@@ -8,32 +8,18 @@ import {
     Background,
     Connection,
     Controls,
-    MarkerType,
     OnEdgesChange,
     OnNodesChange,
     ReactFlow,
     useReactFlow
 } from "@xyflow/react";
 import BaseNode from "@/components/custom-nodes/BaseNode";
-import type { IconType } from "react-icons";
-import {
-    FaCloud,
-    FaDatabase,
-    FaHdd,
-    FaMicrochip,
-    FaPlay,
-    FaQuestionCircle,
-    FaRegComment,
-    FaStop,
-    FaUser
-} from "react-icons/fa";
-import { MdQueue } from "react-icons/md";
-import { AiOutlineApi } from "react-icons/ai";
 import { toast, Toaster } from "react-hot-toast";
 import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
+import {DynamicIcon} from "@/components/shared/DynamicIcon";
 
 export default function FlowContent() {
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -44,18 +30,18 @@ export default function FlowContent() {
 
     const {nodes, edges, setNodes, setEdges} = useDesignResponse();
 
-    const typeInfo: Record<string, { icon: IconType; defaultName: string; color: string }> = {
-        cloud:      { icon: FaCloud,          defaultName: "Cloud",      color: "#A0E7E5" },
-        database:   { icon: FaDatabase,       defaultName: "Database",   color: "#B4F8C8" },
-        queue:      { icon: MdQueue,          defaultName: "Queue",      color: "#FBE7C6" },
-        compute:    { icon: FaMicrochip,      defaultName: "Compute",    color: "#FFAEBC" },
-        storage:    { icon: FaHdd,            defaultName: "Storage",    color: "#B28DFF" },
-        api:        { icon: AiOutlineApi,     defaultName: "API",        color: "#FFDFD3" },
-        user:       { icon: FaUser,           defaultName: "User",       color: "#E0C3FC" },
-        decision:   { icon: FaQuestionCircle, defaultName: "Decision",   color: "#C3FBD8" },
-        start:      { icon: FaPlay,           defaultName: "Start",      color: "#DEF9C4" },
-        end:        { icon: FaStop,           defaultName: "End",        color: "#FFC9DE" },
-        annotation: { icon: FaRegComment,     defaultName: "Annotation", color: "#D3E4CD" }
+    const typeInfo: Record<string, { icon: string; defaultName: string; color: string }> = {
+        cloud:      { icon: "FaCloud",          defaultName: "Cloud",      color: "#A0E7E5" },
+        database:   { icon: "FaDatabase",       defaultName: "Database",   color: "#B4F8C8" },
+        queue:      { icon: "MdQueue",          defaultName: "Queue",      color: "#FBE7C6" },
+        compute:    { icon: "FaMicrochip",      defaultName: "Compute",    color: "#FFAEBC" },
+        storage:    { icon: "FaHdd",            defaultName: "Storage",    color: "#B28DFF" },
+        api:        { icon: "AiOutlineApi",     defaultName: "API",        color: "#FFDFD3" },
+        user:       { icon: "FaUser",           defaultName: "User",       color: "#E0C3FC" },
+        decision:   { icon: "FaQuestionCircle", defaultName: "Decision",   color: "#C3FBD8" },
+        start:      { icon: "FaPlay",           defaultName: "Start",      color: "#DEF9C4" },
+        end:        { icon: "FaStop",           defaultName: "End",        color: "#FFC9DE" },
+        annotation: { icon: "FaRegComment",     defaultName: "Annotation", color: "#D3E4CD" }
     };
 
     const nodeTypesList = Object.keys(typeInfo);
@@ -208,7 +194,7 @@ export default function FlowContent() {
                                             style={{ background: color }}
                                             title={typeInfo[typeKey].defaultName}
                                         >
-                                            <IconComp size={16} />
+                                            <DynamicIcon iconName={IconComp} size={16} />
                                         </button>
 
                                         <AnimatePresence>

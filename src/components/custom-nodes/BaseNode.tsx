@@ -12,7 +12,6 @@ import { CSSProperties, Fragment, useEffect, useRef, useState } from 'react';
 import {motion, Transition} from 'framer-motion';
 import EditableContent from '@/components/shared/EditableContent';
 import { BiEdit, BiSave, BiTrash, BiX } from 'react-icons/bi';
-import { IconType } from 'react-icons';
 
 export type HandleDef = {
     id: string;
