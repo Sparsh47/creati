@@ -1,17 +1,24 @@
-import React, { useRef, useEffect } from "react";
+import React, {useRef, useEffect, Dispatch, SetStateAction} from "react";
 import { LuSend } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import {generateResponse} from "@/lib/gemini";
+import {generatePrompt} from "@/constants/prompt";
+import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
+import {Edge} from "@xyflow/react";
 
 interface SearchBarProps {
     placeholder?: string;
     search: string;
     onSearch: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    setLoading: Dispatch<SetStateAction<boolean>>;
+    setLoaderValue: Dispatch<SetStateAction<number>>;
 }
 
-export default function SearchBar({ placeholder, search, onSearch }: SearchBarProps) {
+export default function SearchBar({ placeholder, search, onSearch, setLoading, setLoaderValue }: SearchBarProps) {
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const {setNodes, setEdges} = useDesignResponse();
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -28,11 +35,32 @@ export default function SearchBar({ placeholder, search, onSearch }: SearchBarPr
         }
     };
 
-    const handleClick = () => {
-        if (search.trim().length > 0) {
+    const sendDescription = async () => {
+        try {
+            setLoading(true);
+            setLoaderValue(0);
+            setTimeout(()=>setLoaderValue(33), 3500);
+            setTimeout(()=>setLoaderValue(75), 5500);
+            const response = await generateResponse(
+                generatePrompt(search)
+            );
+            setLoaderValue(100);
+
+            const parsedNodes = response.nodes as FlowNode[];
+            const parsedEdges: Edge[] = (response.edges ?? []).map((e: any) => ({
+                ...e,
+                label: e.label ?? "→",
+            }));
+
+            setNodes(parsedNodes);
+            setEdges(parsedEdges);
+
             router.push("/flow");
+            setLoading(false);
+        } catch (error) {
+            console.error("Failed to fetch or parse Gemini response:", error);
         }
-    };
+    }
 
     return (
         <div
@@ -53,7 +81,7 @@ export default function SearchBar({ placeholder, search, onSearch }: SearchBarPr
           className="resize-none p-6 rounded-2xl bg-transparent w-full flex-1 text-lg outline-none overflow-hidden scrollbar-hide placeholder:text-blue-400 text-blue-600 font-medium"
       />
             <LuSend
-                onClick={handleClick}
+                onClick={sendDescription}
                 className={cn(
                     "w-12 h-12 rounded-xl p-3 transition-all duration-200 relative right-5 border",
                     search.trim().length > 0

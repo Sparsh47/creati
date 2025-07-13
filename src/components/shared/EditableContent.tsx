@@ -1,25 +1,24 @@
 import {BaseNodeData} from "@/components/custom-nodes/BaseNode";
-import {IconType} from "react-icons";
+import {DynamicIcon} from "@/components/shared/DynamicIcon";
 
 interface EditableLabelProps {
-    data: BaseNodeData & { icon: IconType };
+    data: BaseNodeData & { icon: string };
     nameFontSize: string;
     labelFontSize: string;
 }
 
 export default function EditableContent({ data, labelFontSize, nameFontSize }: EditableLabelProps) {
-    const Icon = data.icon;
     return (
         <div
-            className="w-full h-full flex items-center justify-center gap-5 shadow-xl rounded-md"
+            className="w-full h-full flex items-center justify-center shadow-xl rounded-md pl-10"
             style={{
                 background: data.color,
             }}
         >
-            <Icon size={24} />
+            <DynamicIcon iconName={data.icon} />
             <div style={{ marginLeft: 8, display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontWeight: 600, fontSize: labelFontSize }}>{data.label}</span>
-                <span style={{ fontSize: nameFontSize }}>{data.name}</span>
+                <span style={{ fontSize: nameFontSize, textTransform: "uppercase" }}>{data.name}</span>
             </div>
         </div>
     )

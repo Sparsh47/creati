@@ -4,6 +4,7 @@ import "./globals.css";
 import Animator from "@/components/Animator";
 import Navbar from "@/components/shared/Navbar";
 import React from "react";
+import DesignResponseProvider from "@/context/DesignResponseContext";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",
@@ -30,9 +31,11 @@ export default function RootLayout({
             className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased selection:bg-blue-500/10`}
         >
             <Navbar />
-            <Animator>
-                {children}
-            </Animator>
+            <DesignResponseProvider>
+                <Animator>
+                    {children}
+                </Animator>
+            </DesignResponseProvider>
         </body>
         </html>
     );

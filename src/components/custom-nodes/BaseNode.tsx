@@ -24,11 +24,11 @@ export type BaseNodeData = {
     label: string;
     name: string;
     color: string;
-    icon: IconType;
+    icon: string;
     handles?: HandleDef[];
 };
 
-export type BaseNodeType = Node<BaseNodeData, 'process'>;
+export type BaseNodeType = Node<BaseNodeData, 'baseNode'>;
 
 export type SizeOption = {
     key: 'small' | 'medium' | 'large';
@@ -39,9 +39,9 @@ export type SizeOption = {
 };
 
 export const NODE_SIZE_OPTIONS: SizeOption[] = [
-    { key: 'small',  width: 180, height: 80,  labelFontSize: '1rem',     nameFontSize: '0.875rem' },
-    { key: 'medium', width: 225, height: 100, labelFontSize: '1.125rem', nameFontSize: '1rem'     },
-    { key: 'large',  width: 270, height: 120, labelFontSize: '1.25rem',  nameFontSize: '1.125rem'  },
+    { key: 'small',  width: 225, height: 100,  labelFontSize: '1rem',     nameFontSize: '0.875rem' },
+    { key: 'medium', width: 250, height: 120, labelFontSize: '1.125rem', nameFontSize: '1rem'     },
+    { key: 'large',  width: 300, height: 140, labelFontSize: '1.25rem',  nameFontSize: '1.125rem'  },
 ];
 
 export default function BaseNode({
@@ -145,8 +145,8 @@ export default function BaseNode({
                 lineClassName="z-50"
             />
 
-            {handles.map(h => (
-                <Fragment key={h.id}>
+            {handles.map((h, index) => (
+                <Fragment key={`${h.id}-${index}`}>
                     <Handle
                         type="source"
                         id={`${h.id}-source`}

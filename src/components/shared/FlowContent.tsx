@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {
     addEdge,
     applyEdgeChanges,
@@ -8,14 +8,13 @@ import {
     Background,
     Connection,
     Controls,
-    Edge,
-    Node,
+    MarkerType,
     OnEdgesChange,
     OnNodesChange,
     ReactFlow,
     useReactFlow
 } from "@xyflow/react";
-import BaseNode, { BaseNodeData } from "@/components/custom-nodes/BaseNode";
+import BaseNode from "@/components/custom-nodes/BaseNode";
 import type { IconType } from "react-icons";
 import {
     FaCloud,
@@ -34,20 +33,16 @@ import { toast, Toaster } from "react-hot-toast";
 import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-
-type FlowNode = Node<BaseNodeData & { icon: IconType }> & {
-    width: number;
-    height: number;
-};
+import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
 
 export default function FlowContent() {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const { getViewport } = useReactFlow();
 
-    const [nodes, setNodes] = useState<FlowNode[]>([]);
-    const [edges, setEdges] = useState<Edge[]>([]);
     const [showMenu, setShowMenu] = useState(false);
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+
+    const {nodes, edges, setNodes, setEdges} = useDesignResponse();
 
     const typeInfo: Record<string, { icon: IconType; defaultName: string; color: string }> = {
         cloud:      { icon: FaCloud,          defaultName: "Cloud",      color: "#A0E7E5" },
@@ -62,6 +57,7 @@ export default function FlowContent() {
         end:        { icon: FaStop,           defaultName: "End",        color: "#FFC9DE" },
         annotation: { icon: FaRegComment,     defaultName: "Annotation", color: "#D3E4CD" }
     };
+
     const nodeTypesList = Object.keys(typeInfo);
 
     const onNodesChange: OnNodesChange = useCallback((changes) => {
@@ -92,8 +88,8 @@ export default function FlowContent() {
             const occupied = nodes.map(n => ({
                 x: n.position.x,
                 y: n.position.y,
-                width: n.width ?? 180,
-                height: n.height ?? 80
+                width: n.width ?? 225,
+                height: n.height ?? 100
             }));
             const { x: panX, y: panY, zoom } = getViewport();
             const wrap = wrapperRef.current;
@@ -101,7 +97,7 @@ export default function FlowContent() {
             const { width: pxW, height: pxH } = wrap.getBoundingClientRect();
             const viewW = pxW / zoom;
             const viewH = pxH / zoom;
-            const NEW_W = 180, NEW_H = 80;
+            const NEW_W = 225, NEW_H = 100;
             let pos = { x: panX, y: panY },
                 tries = 0;
             do {
@@ -264,6 +260,24 @@ export default function FlowContent() {
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}
                     nodeTypes={{ baseNode: BaseNode }}
+                    defaultEdgeOptions={{
+                            type: "step",
+                            animated: true,
+                            style: {
+                                stroke: '#4B5563',
+                                strokeWidth: 8,
+                                strokeDasharray: '6 4',
+                            },
+                            labelStyle: {
+                                fill: '#111827',
+                                fontSize: 16,
+                                fontWeight: 500,
+                                background: 'rgba(255,255,255,0.8)',
+                                padding: '2px 4px',
+                                borderRadius: 4,
+                            },
+                        }}
+                    defaultViewport={{x: 0, y: 0, zoom: 0.5}}
                 >
                     <Background />
                     <Controls />
