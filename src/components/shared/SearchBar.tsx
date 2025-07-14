@@ -6,6 +6,8 @@ import {generateResponse} from "@/lib/gemini";
 import {generatePrompt} from "@/constants/prompt";
 import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
 import {Edge} from "@xyflow/react";
+import {toast} from "react-hot-toast";
+import {useApiKey} from "@/context/ApiKeyContext";
 
 interface SearchBarProps {
     placeholder?: string;
@@ -19,6 +21,7 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const {setNodes, setEdges} = useDesignResponse();
+    const {apiKey} = useApiKey();
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -37,12 +40,21 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
 
     const sendDescription = async () => {
         try {
+            if(!apiKey) {
+                console.warn("No API key set.");
+                return;
+            }
+            if(search.trim().length===0) {
+                toast.error("Please enter a valid description");
+                return;
+            }
             setLoading(true);
             setLoaderValue(0);
             setTimeout(()=>setLoaderValue(33), 3500);
             setTimeout(()=>setLoaderValue(75), 5500);
             const response = await generateResponse(
-                generatePrompt(search)
+                generatePrompt(search),
+                apiKey
             );
             setLoaderValue(100);
 

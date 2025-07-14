@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { HiOutlineSparkles } from "react-icons/hi2";
+import ApiKeyInput from "@/components/shared/ApiKeyInput";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -50,6 +51,7 @@ export default function Navbar() {
                     <HiOutlineSparkles className="w-6 h-6" />
                 </Link>
             </div>
+            <ApiKeyInput />
         </nav>
     );
 }

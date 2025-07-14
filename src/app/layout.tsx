@@ -5,6 +5,8 @@ import Animator from "@/components/Animator";
 import Navbar from "@/components/shared/Navbar";
 import React from "react";
 import DesignResponseProvider from "@/context/DesignResponseContext";
+import {Toaster} from "react-hot-toast";
+import ApiKeyProvider from "@/context/ApiKeyContext";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",
@@ -30,12 +32,15 @@ export default function RootLayout({
         <body
             className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased selection:bg-blue-500/10`}
         >
+        <ApiKeyProvider>
             <Navbar />
+            <Toaster position="top-right" />
             <DesignResponseProvider>
                 <Animator>
                     {children}
                 </Animator>
             </DesignResponseProvider>
+        </ApiKeyProvider>
         </body>
         </html>
     );

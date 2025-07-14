@@ -1,9 +1,8 @@
 import {GoogleGenerativeAI} from "@google/generative-ai";
 
-const genAi = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
-
-export const generateResponse = async (prompt: string) => {
+export const generateResponse = async (prompt: string, apiKey: string) => {
     try {
+        const genAi = new GoogleGenerativeAI(apiKey);
 
         const model = genAi.getGenerativeModel({model: "gemini-2.5-flash"});
 
@@ -12,7 +11,7 @@ export const generateResponse = async (prompt: string) => {
         const text = response.text;
         const rawText = text();
 
-        const jsonMatch = rawText.match(/```(?:json)(?:javascript)?\s*([\s\S]*?)\s*```/i);
+        const jsonMatch = rawText.match(/```json(?:javascript)?\s*([\s\S]*?)\s*```/i);
 
         if (jsonMatch && jsonMatch[1]) {
             try {

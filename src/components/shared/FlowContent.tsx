@@ -14,7 +14,7 @@ import {
     useReactFlow
 } from "@xyflow/react";
 import BaseNode from "@/components/custom-nodes/BaseNode";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
@@ -165,7 +165,6 @@ export default function FlowContent() {
 
     return (
         <main className="w-full h-full relative" style={{ height: "100vh" }}>
-            <Toaster position="top-right" />
 
             <div className="absolute bottom-10 right-10 flex flex-col items-center z-50">
                 <AnimatePresence>
