@@ -9,7 +9,7 @@ import {Progress} from "@/components/ui/progress";
 
 export default function Home() {
 
-    const {userPrompt, setUserPrompt, setNodes, setEdges} = useDesignResponse();
+    const {userPrompt, setUserPrompt} = useDesignResponse();
     const [loading, setLoading] = useState<boolean>(false);
     const [loaderValue, setLoaderValue] = useState<number>(0);
 
