@@ -15,9 +15,10 @@ interface SearchBarProps {
     onSearch: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     setLoading: Dispatch<SetStateAction<boolean>>;
     setLoaderValue: Dispatch<SetStateAction<number>>;
+    clearSearch: () => void
 }
 
-export default function SearchBar({ placeholder, search, onSearch, setLoading, setLoaderValue }: SearchBarProps) {
+export default function SearchBar({ placeholder, search, onSearch, setLoading, setLoaderValue, clearSearch }: SearchBarProps) {
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const {setNodes, setEdges} = useDesignResponse();
@@ -68,6 +69,7 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
             setEdges(parsedEdges);
 
             router.push("/flow");
+            clearSearch();
         } catch (error) {
             console.error("Failed to fetch or parse Gemini response:", error);
         }

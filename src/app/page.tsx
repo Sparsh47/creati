@@ -84,6 +84,7 @@ export default function Home() {
                             <SearchBar
                                 placeholder="Generate architecture for my e-commerce platform"
                                 search={userPrompt}
+                                clearSearch={()=>setUserPrompt("")}
                                 onSearch={(e) => setUserPrompt(e.target.value)}
                                 setLoading={setLoading}
                                 setLoaderValue={setLoaderValue}
