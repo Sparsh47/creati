@@ -10,11 +10,15 @@ import { FiUser, FiLayers, FiLogOut } from "react-icons/fi";
 import ApiKeyInput from "@/components/shared/ApiKeyInput";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import {LuSettings} from "react-icons/lu";
+import {useCharts} from "@/context/ChartContexts";
+import {Trash2} from "lucide-react";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
     const { isLoggedIn, setIsLoggedIn, authInfo, setAuthInfo } = useAuth();
+    const {deleteCharts} = useCharts();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -161,6 +165,7 @@ export default function Navbar() {
                 )}
 
                 <ApiKeyInput />
+
             </div>
         </nav>
     );

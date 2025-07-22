@@ -8,6 +8,7 @@ import DesignResponseProvider from "@/context/DesignResponseContext";
 import {Toaster} from "react-hot-toast";
 import ApiKeyProvider from "@/context/ApiKeyContext";
 import AuthProvider from "@/context/AuthContext";
+import ImageProvider from "@/context/ChartContexts";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",
@@ -35,13 +36,15 @@ export default function RootLayout({
         >
         <ApiKeyProvider>
             <AuthProvider>
-                <Navbar />
-                <Toaster position="top-right" />
-                <DesignResponseProvider>
-                    <Animator>
-                        {children}
-                    </Animator>
-                </DesignResponseProvider>
+                <ImageProvider>
+                    <Navbar />
+                    <Toaster position="top-right" />
+                    <DesignResponseProvider>
+                        <Animator>
+                            {children}
+                        </Animator>
+                    </DesignResponseProvider>
+                </ImageProvider>
             </AuthProvider>
         </ApiKeyProvider>
         </body>

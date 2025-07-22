@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {
     addEdge,
     applyEdgeChanges,
@@ -20,15 +20,38 @@ import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
 import {DynamicIcon} from "@/components/shared/DynamicIcon";
+import {toPng} from "html-to-image";
+import {useCharts} from "@/context/ChartContexts";
 
 export default function FlowContent() {
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const { getViewport } = useReactFlow();
+    const { getViewport, fitView } = useReactFlow();
 
     const [showMenu, setShowMenu] = useState(false);
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
     const {nodes, edges, setNodes, setEdges} = useDesignResponse();
+    const {setCharts} = useCharts();
+
+    useEffect(() => {
+        if(!wrapperRef.current) return;
+        fitView();
+
+        const interval = setInterval((async () => {
+            try {
+                const imageUrl = await toPng(wrapperRef.current!);
+
+                setCharts(prev=>([...prev, imageUrl]));
+            } catch (error: any) {
+                console.error(error);
+            }
+        }), 5000);
+
+        return () => {
+            clearInterval(interval);
+        }
+
+    }, [nodes, edges]);
 
     const typeInfo: Record<string, { icon: string; defaultName: string; color: string }> = {
         cloud:      { icon: "FaCloud",          defaultName: "Cloud",      color: "#A0E7E5" },
