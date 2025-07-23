@@ -1,13 +1,13 @@
-import React, {useRef, useEffect, Dispatch, SetStateAction} from "react";
+import React, { useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { LuSend } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import {generateResponse} from "@/lib/gemini";
-import {generatePrompt} from "@/constants/prompt";
-import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
-import {Edge} from "@xyflow/react";
-import {toast} from "react-hot-toast";
-import {useApiKey} from "@/context/ApiKeyContext";
+import { generateResponse } from "@/lib/gemini";
+import { generatePrompt } from "@/constants/prompt";
+import { FlowNode, useDesignResponse } from "@/context/DesignResponseContext";
+import { Edge } from "@xyflow/react";
+import { toast } from "react-hot-toast";
+import { useApiKey } from "@/context/ApiKeyContext";
 
 interface SearchBarProps {
     placeholder?: string;
@@ -15,14 +15,14 @@ interface SearchBarProps {
     onSearch: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
     setLoading: Dispatch<SetStateAction<boolean>>;
     setLoaderValue: Dispatch<SetStateAction<number>>;
-    clearSearch: () => void
+    clearSearch: () => void;
 }
 
 export default function SearchBar({ placeholder, search, onSearch, setLoading, setLoaderValue, clearSearch }: SearchBarProps) {
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const {setNodes, setEdges} = useDesignResponse();
-    const {apiKey} = useApiKey();
+    const { setNodes, setEdges } = useDesignResponse();
+    const { apiKey } = useApiKey();
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -41,18 +41,18 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
 
     const sendDescription = async () => {
         try {
-            if(!apiKey) {
+            if (!apiKey) {
                 console.warn("No API key set.");
                 return;
             }
-            if(search.trim().length===0) {
+            if (search.trim().length === 0) {
                 toast.error("Please enter a valid description");
                 return;
             }
             setLoading(true);
             setLoaderValue(0);
-            setTimeout(()=>setLoaderValue(33), 3500);
-            setTimeout(()=>setLoaderValue(75), 5500);
+            setTimeout(() => setLoaderValue(33), 3500);
+            setTimeout(() => setLoaderValue(75), 5500);
             const response = await generateResponse(
                 generatePrompt(search),
                 apiKey
@@ -77,22 +77,16 @@ export default function SearchBar({ placeholder, search, onSearch, setLoading, s
 
     return (
         <div
-            className="w-full max-w-4xl flex items-center rounded-2xl border border-blue-300/30 bg-white/20 backdrop-blur-md transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-400"
-            style={{
-                boxShadow: `
-          inset 0 1px 1px rgba(255, 255, 255, 0.4),
-          inset 0 2px 6px rgba(59, 130, 246, 0.1),
-          0 6px 20px rgba(147, 197, 253, 0.2)`
-            }}
+            className="w-full max-w-4xl flex items-center rounded-2xl transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-300 border-t shadow-xl shadow-blue-500/30 bg-white/60 backdrop-blur-md border-2 border-blue-200"
         >
-      <textarea
-          ref={textareaRef}
-          rows={1}
-          placeholder={placeholder}
-          value={search}
-          onChange={handleChange}
-          className="resize-none p-6 rounded-2xl bg-transparent w-full flex-1 text-lg outline-none overflow-hidden scrollbar-hide placeholder:text-blue-400 text-blue-600 font-medium"
-      />
+            <textarea
+                ref={textareaRef}
+                rows={1}
+                placeholder={placeholder}
+                value={search}
+                onChange={handleChange}
+                className="resize-none p-6 rounded-2xl bg-transparent w-full flex-1 text-lg outline-none overflow-hidden scrollbar-hide placeholder:text-blue-400 text-blue-600 font-medium"
+            />
             <LuSend
                 onClick={sendDescription}
                 className={cn(

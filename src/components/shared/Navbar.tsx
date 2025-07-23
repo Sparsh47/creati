@@ -10,9 +10,6 @@ import { FiUser, FiLayers, FiLogOut } from "react-icons/fi";
 import ApiKeyInput from "@/components/shared/ApiKeyInput";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import {LuSettings} from "react-icons/lu";
-import {useCharts} from "@/context/ChartContexts";
-import {Trash2} from "lucide-react";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -60,7 +57,7 @@ export default function Navbar() {
             <div
                 className={cn(
                     "w-full max-w-5xl flex items-center justify-between p-5 rounded-3xl border border-transparent",
-                    scrolled && "bg-blue-50/30 border-blue-100 backdrop-blur-md shadow-2xl shadow-blue-500/30"
+                    scrolled && "bg-blue-50/30 backdrop-blur-md shadow-2xl shadow-blue-500/30"
                 )}
             >
                 <Link href="/" className="flex items-center gap-2">
@@ -77,14 +74,13 @@ export default function Navbar() {
                 </Link>
 
                 {isLoggedIn ? (
-                    <div className="relative flex items-center justify-center gap-5" ref={dropdownRef}>
+                    <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setOpen((o) => !o)}
                             className="p-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30 cursor-pointer"
                         >
                             <FaUser size={24} color="white" />
                         </button>
-                        <ApiKeyInput />
 
                         {open && (
                             <div
@@ -163,6 +159,7 @@ export default function Navbar() {
                         </Link>
                     </div>
                 )}
+                {!scrolled && <ApiKeyInput />}
 
             </div>
         </nav>

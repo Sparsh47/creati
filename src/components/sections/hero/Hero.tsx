@@ -47,6 +47,7 @@ export default function Hero() {
             radial-gradient(circle at 80% 60%, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0) 35%)`,
                         }}
                     />
+                    <Ripple />
 
                     <div className="relative z-10 flex flex-col items-center gap-12 px-4 w-full max-w-5xl">
                         <h2 className="text-center font-jetbrains text-7xl font-semibold leading-tight">
@@ -57,7 +58,7 @@ export default function Hero() {
                                 className="outlined-text"
                                 style={{
                                     background: "none",
-                                    WebkitTextStroke: "2.5px #3b82f6",
+                                    WebkitTextStroke: "2.5px #3B82F6",
                                 }}
                             >
             Scalable
@@ -72,7 +73,7 @@ export default function Hero() {
                                 className="outlined-text"
                                 style={{
                                     background: "none",
-                                    WebkitTextStroke: "2.5px #3b82f6",
+                                    WebkitTextStroke: "2.5px #3B82F6",
                                 }}
                             >
             AI
@@ -113,24 +114,38 @@ export default function Hero() {
                                         }}
                                         whileHover={{
                                             scale: 1.02,
-                                            boxShadow: "0 6px 16px rgba(59, 130, 246, 0.2)",
                                         }}
                                         whileTap={{
                                             scale: 0.98,
-                                            boxShadow: "inset 0 2px 4px rgba(59, 130, 246, 0.2)",
+                                            boxShadow: "inset 0 2px 4px rgba(59, 130, 246, 0.3)",
                                         }}
                                         transition={{ duration: 0.25, ease: "easeOut" }}
-                                        className="w-fit max-w-[350px] flex items-center justify-start gap-3 px-5 py-2 rounded-2xl bg-white/20 backdrop-blur-md border border-blue-200/50 text-blue-500/90 text-sm font-medium cursor-pointer shadow-[0_2px_6px_rgba(59,130,246,0.15)]"
+                                        className="w-fit max-w-[350px] flex items-center justify-start gap-3 px-5 py-2 rounded-2xl border-t shadow-xl shadow-blue-500/30 bg-white/60 backdrop-blur-md border-2 border-blue-200 text-sm font-medium cursor-pointer"
                                     >
                                         <LuSearch className="w-10 h-10 text-blue-500" />
-                                        <span className="line-clamp-1">{label}</span>
+                                        <span className="line-clamp-1 text-blue-500">{label}</span>
                                     </motion.button>
                                 ))}
                             </motion.div>
+
                         </div>
                     </div>
                 </div>
             )}
         </>
     );
+}
+
+function Ripple() {
+    return (
+        <div className="relative bottom-[350px] scale-[250%]">
+            <div className="w-[700px] h-[700px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-50 absolute z-10 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[600px] h-[600px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-100 absolute z-10 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[500px] h-[500px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-200 absolute z-20 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[400px] h-[400px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-300 absolute z-30 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[300px] h-[300px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-400 absolute z-40 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[200px] h-[200px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-500 absolute z-50 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+            <div className="w-[100px] h-[100px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-600 absolute z-50 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+        </div>
+    )
 }

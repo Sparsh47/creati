@@ -17,7 +17,7 @@ export default function ApiKeyInput() {
     };
 
     return (
-        <div className="">
+        <div className="absolute right-10">
             <button
                 onClick={openModal}
                 className="p-3 shadow-xl hover:shadow-lg shadow-blue-500/30 ease-in-out transition-all duration-200 cursor-pointer rounded-full bg-blue-500 text-white hover:bg-blue-600 flex items-center"
