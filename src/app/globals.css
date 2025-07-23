@@ -151,6 +151,9 @@
     hover:bg-gradient-to-br from-white via-blue-50 to-blue-100/50
     duration-200 ease-in-out transition-all;
   }
+  .gradient-text {
+    @apply bg-clip-text text-transparent from-blue-800 via-blue-600 to-blue-400;
+  }
 }
 
 @layer utilities {

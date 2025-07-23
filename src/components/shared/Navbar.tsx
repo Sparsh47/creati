@@ -18,7 +18,6 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
     const { isLoggedIn, setIsLoggedIn, authInfo, setAuthInfo } = useAuth();
-    const {deleteCharts} = useCharts();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -60,8 +59,8 @@ export default function Navbar() {
         >
             <div
                 className={cn(
-                    "w-full max-w-5xl flex items-center justify-between p-2 rounded-2xl border border-transparent",
-                    scrolled && "bg-gray-50/80 border-gray-300 backdrop-blur-md"
+                    "w-full max-w-5xl flex items-center justify-between p-5 rounded-3xl border border-transparent",
+                    scrolled && "bg-blue-50/30 border-blue-100 backdrop-blur-md shadow-2xl shadow-blue-500/30"
                 )}
             >
                 <Link href="/" className="flex items-center gap-2">
@@ -78,13 +77,14 @@ export default function Navbar() {
                 </Link>
 
                 {isLoggedIn ? (
-                    <div className="relative" ref={dropdownRef}>
+                    <div className="relative flex items-center justify-center gap-5" ref={dropdownRef}>
                         <button
                             onClick={() => setOpen((o) => !o)}
                             className="p-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30 cursor-pointer"
                         >
                             <FaUser size={24} color="white" />
                         </button>
+                        <ApiKeyInput />
 
                         {open && (
                             <div
@@ -163,8 +163,6 @@ export default function Navbar() {
                         </Link>
                     </div>
                 )}
-
-                <ApiKeyInput />
 
             </div>
         </nav>
