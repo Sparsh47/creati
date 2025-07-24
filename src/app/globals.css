@@ -124,7 +124,7 @@
     @apply w-full h-full flex items-center justify-center rounded border border-gray-600 p-2 hover:shadow-sm ease-in-out transition-all duration-200;
   }
   .dropdown-btn {
-    @apply w-full text-left px-2 py-1 text-[10px] hover:bg-blue-50 rounded cursor-pointer flex items-center gap-1;
+    @apply flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-blue-700 rounded-md hover:bg-blue-200 transition-colors duration-200 cursor-pointer;
   }
   .tooltip {
     @apply absolute bottom-[110%] left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap
@@ -152,7 +152,10 @@
     duration-200 ease-in-out transition-all;
   }
   .gradient-text {
-    @apply bg-clip-text text-transparent from-blue-800 via-blue-600 to-blue-400;
+    @apply bg-clip-text text-transparent brightness-110
+    from-[#003F8A]
+    via-[#0051B5]
+    to-[#3C7FF3];
   }
 }
 
@@ -170,7 +173,7 @@
     background: none;
   }
   .cta-btn {
-    @apply flex items-center justify-center gap-2 bg-blue-500 rounded-xl text-white py-3 px-6 shadow-xl hover:shadow-lg shadow-blue-500/30 ease-in-out transition-all duration-200;
+    @apply flex items-center justify-center gap-2 bg-gradient-to-tl from-blue-700 via-blue-500 to-blue-400 rounded-xl text-white py-3 px-6 shadow-xl hover:shadow-lg shadow-blue-500/30 ease-in-out transition-all duration-200;
   }
   .float-animation {
     animation: float 5s infinite cubic-bezier(0.25, 0.8, 0.25, 1);

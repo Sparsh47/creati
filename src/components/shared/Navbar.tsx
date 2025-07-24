@@ -56,8 +56,8 @@ export default function Navbar() {
         >
             <div
                 className={cn(
-                    "w-full max-w-5xl flex items-center justify-between p-5 rounded-3xl border border-transparent",
-                    scrolled && "bg-blue-50/30 backdrop-blur-md shadow-2xl shadow-blue-500/30"
+                    "w-full max-w-6xl flex items-center justify-between p-5 rounded-3xl border border-transparent",
+                    scrolled && "bg-blue-50/30 border-2 border-blue-100 backdrop-blur-md shadow-2xl shadow-blue-500/30"
                 )}
             >
                 <Link href="/" className="flex items-center gap-2">
@@ -97,13 +97,7 @@ export default function Navbar() {
                                 <Link
                                     href="/profile"
                                     onClick={() => setOpen(false)}
-                                    className="
-                    flex items-center gap-2 w-full px-3 py-2 mb-1
-                    text-sm font-medium text-blue-700
-                    rounded-md
-                    hover:bg-blue-200
-                    transition-colors duration-200
-                  "
+                                    className="dropdown-btn mb-1"
                                 >
                                     <FiUser size={16} />
                                     Profile
@@ -111,26 +105,14 @@ export default function Navbar() {
                                 <Link
                                     href="/designs"
                                     onClick={() => setOpen(false)}
-                                    className="
-                    flex items-center gap-2 w-full px-3 py-2 mb-1
-                    text-sm font-medium text-blue-700
-                    rounded-md
-                    hover:bg-blue-200
-                    transition-colors duration-200
-                  "
+                                    className="dropdown-btn mb-1"
                                 >
                                     <FiLayers size={16} />
                                     Your Designs
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="
-                    flex items-center gap-2 w-full px-3 py-2
-                    text-sm font-medium text-blue-700
-                    rounded-md
-                    hover:bg-blue-200
-                    transition-colors duration-200 cursor-pointer
-                  "
+                                    className="dropdown-btn"
                                 >
                                     <FiLogOut size={16} />
                                     Logout

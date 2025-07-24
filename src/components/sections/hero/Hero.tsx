@@ -58,7 +58,7 @@ export default function Hero() {
                                 className="outlined-text"
                                 style={{
                                     background: "none",
-                                    WebkitTextStroke: "2.5px #3B82F6",
+                                    WebkitTextStroke: "2.5px #185DB3",
                                 }}
                             >
             Scalable
@@ -73,7 +73,7 @@ export default function Hero() {
                                 className="outlined-text"
                                 style={{
                                     background: "none",
-                                    WebkitTextStroke: "2.5px #3B82F6",
+                                    WebkitTextStroke: "2.5px #185DB3",
                                 }}
                             >
             AI
@@ -96,11 +96,7 @@ export default function Hero() {
                                 animate="visible"
                                 variants={{
                                     hidden: {},
-                                    visible: {
-                                        transition: {
-                                            staggerChildren: 0.1,
-                                        },
-                                    },
+                                    visible: { transition: { staggerChildren: 0.1 } },
                                 }}
                                 className="flex flex-wrap items-center justify-center gap-4 mt-4"
                             >
@@ -112,21 +108,32 @@ export default function Hero() {
                                             hidden: { opacity: 0, y: 12 },
                                             visible: { opacity: 1, y: 0 },
                                         }}
-                                        whileHover={{
-                                            scale: 1.02,
-                                        }}
+                                        whileHover={{ scale: 1.02 }}
                                         whileTap={{
                                             scale: 0.98,
                                             boxShadow: "inset 0 2px 4px rgba(59, 130, 246, 0.3)",
                                         }}
                                         transition={{ duration: 0.25, ease: "easeOut" }}
-                                        className="w-fit max-w-[350px] flex items-center justify-start gap-3 px-5 py-2 rounded-2xl border-t shadow-xl shadow-blue-500/30 bg-white/60 backdrop-blur-md border-2 border-blue-200 text-sm font-medium cursor-pointer"
+                                        className="
+                                            w-fit max-w-[350px] flex items-center justify-start gap-3
+                                            px-5 py-2 rounded-2xl
+                                            font-medium text-sm
+                                            bg-white/30 backdrop-blur-md
+                                            border-2 border-blue-200
+                                            text-blue-600
+                                            shadow-xl shadow-blue-500/30
+                                            hover:bg-white/40
+                                            transition-colors duration-200
+                                            cursor-pointer
+                                          "
                                     >
-                                        <LuSearch className="w-10 h-10 text-blue-500" />
-                                        <span className="line-clamp-1 text-blue-500">{label}</span>
+                                        <LuSearch className="w-10 h-10" />
+                                        <span className="line-clamp-1">{label}</span>
                                     </motion.button>
                                 ))}
                             </motion.div>
+
+
 
                         </div>
                     </div>
@@ -138,8 +145,8 @@ export default function Hero() {
 
 function Ripple() {
     return (
-        <div className="relative bottom-[350px] scale-[250%]">
-            <div className="w-[700px] h-[700px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-50 absolute z-10 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
+        <div className="relative bottom-[350px] scale-[250%] opacity-80">
+            {/*<div className="w-[700px] h-[700px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-50 absolute z-10 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>*/}
             <div className="w-[600px] h-[600px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-100 absolute z-10 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
             <div className="w-[500px] h-[500px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-200 absolute z-20 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
             <div className="w-[400px] h-[400px] rounded-full shadow-xl shadow-blue-500/30 bg-blue-300 absolute z-30 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"></div>
