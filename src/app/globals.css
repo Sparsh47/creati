@@ -157,6 +157,12 @@
     via-[#0051B5]
     to-[#3C7FF3];
   }
+  .pricing-type {
+    @apply font-semibold text-xl text-transparent bg-clip-text bg-gradient-to-tl from-blue-500 via-blue-400 to-blue-300;
+  }
+  .enabled-text {
+    @apply from-blue-700 via-blue-600 to-blue-500;
+  }
 }
 
 @layer utilities {
