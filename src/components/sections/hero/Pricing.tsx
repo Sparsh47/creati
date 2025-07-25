@@ -82,9 +82,7 @@ export default function Pricing() {
     const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
     return (
-        <section className="w-full min-h-screen flex flex-col items-center justify-center gap-10 relative py-40">
-            <div className="absolute top-0 w-full h-[300px] bg-gradient-to-b from-blue-500/20 to-transparent" />
-
+        <section className="w-full min-h-screen flex flex-col items-center justify-center gap-10 py-28">
             <SectionHeader
                 Icon={FaMoneyCheck}
                 title="Pricing that fits your vision"

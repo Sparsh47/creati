@@ -61,7 +61,7 @@ const faqItems: FAQItemType[] = [
 export default function FAQ() {
     return (
         <section className="w-full min-h-screen flex flex-col items-center justify-center gap-10 relative py-32">
-            <div className="absolute top-0 w-full h-[300px] bg-gradient-to-b from-blue-500/20 to-transparent"></div>
+            <div className="absolute top-0 w-full h-[300px] bg-gradient-to-b from-blue-500/20 to-transparent blur-3xl"></div>
             <SectionHeader Icon={FaCircleQuestion} title="Your Questions Answered" section="FAQ" description="Answers to some of the Most Important Questions" />
             <div className="w-full max-w-5xl flex flex-col items-center justify-center gap-5">
                 {faqItems.map((faqItem) => (
