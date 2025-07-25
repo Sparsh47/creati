@@ -43,7 +43,7 @@ export default function PricingCard({
                 pathname: '/signin',
                 query: 'type=signin&plan=PLAN_ID'
             }}
-                className="cursor-pointer mt-4 w-full flex items-center justify-center py-2 rounded-lg font-semibold text-white bg-gradient-to-br from-[#007bff] to-[#0055ff] shadow-md shadow-blue-500/50 transition-transform duration-200 hover:scale-[1.02]"
+                className="cursor-pointer mt-4 w-full flex items-center justify-center py-2 rounded-lg font-semibold text-white bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 shadow-md shadow-blue-500/50 transition-transform duration-200 hover:scale-[1.02]"
             >
                 Subscribe
             </Link>
@@ -51,7 +51,16 @@ export default function PricingCard({
             <ul className="mt-6 space-y-3">
                 {features.map((feat, i) => (
                     <li key={i} className="flex items-center gap-2 text-blue-700">
-                        <FaCircleCheck size={20} className="text-[#0066FF]" />
+                        <svg width={20} height={20}>
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style={{ stopColor: "rgb(0, 123, 255)", stopOpacity: 1 }} />
+                                    <stop offset="100%" style={{ stopColor: "rgb(0, 204, 255)", stopOpacity: 1 }} />
+                                </linearGradient>
+                            </defs>
+
+                            <FaCircleCheck size={20} style={{ fill: 'url(#grad1)' }} className="text-transparent" />
+                        </svg>
                         <span className="text-sm">{feat}</span>
                     </li>
                 ))}

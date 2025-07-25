@@ -8,7 +8,7 @@ type StepInfoProps = StepInfoType & {
 
 export default function StepCard({Icon, step, title, description}: StepInfoProps) {
     return (
-        <div className="w-full flex flex-col gap-6 p-5 border-2 border-blue-200 rounded-sm shadow-xl shadow-blue-500/30">
+        <div className="w-full flex flex-col gap-6 p-5 border-2 border-blue-100 rounded-xl shadow-xl shadow-blue-500/30">
             <div className="w-fit p-2 rounded-full border-t shadow-lg shadow-blue-500/50 flex items-center justify-center gap-2 bg-white/60 backdrop-blur-md border-2 border-blue-200">
                 <svg width={ICON_SIZE} height={ICON_SIZE}>
                     <defs>
