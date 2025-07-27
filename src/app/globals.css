@@ -164,7 +164,7 @@
     @apply from-blue-700 via-blue-600 to-blue-500;
   }
   .feature-card {
-    @apply p-3 border-2 border-blue-100 shadow-xl shadow-blue-500/20 bg-blue-50/30 backdrop-blur-md rounded-xl;
+    @apply p-3 border-2 border-blue-100 shadow-xl shadow-blue-500/20 bg-blue-50/30 backdrop-blur-md rounded-xl hover:border-blue-200 duration-150 ease-in-out transition-all;
   }
 }
 
@@ -202,4 +202,46 @@
   75% {
     transform: translateY(2px);
   }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes sparkle {
+  0% { opacity: 0; }
+  100% { opacity: 0.3; transform: translate(5px, 5px); }
+}
+
+@keyframes move-cursor {
+  0% { left: 0; top: 0; }
+  25% { left: 30%; top: 40%; transform: scale(1.1); }
+  50% { left: 60%; top: 20%; }
+  75% { left: 80%; top: 60%; transform: scale(0.9); }
+  100% { left: 0; top: 0; }
+}
+
+@keyframes rotate-gear {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes check-save {
+  0%, 80% { opacity: 0; }
+  90% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes morph {
+  0% { width: 100px; height: 100px; rx: 0; fill: purple; transform: translate(0,0); }
+  50% { width: 120px; height: 80px; rx: 20; fill: blue; transform: translate(10px,10px); }
+  100% { width: 80px; height: 120px; rx: 40; fill: green; transform: translate(-10px,-10px); }
+}
+
+@keyframes slide-export {
+  0% { transform: translate(0,0); opacity: 0; }
+  50% { transform: translate(50px,0); opacity: 1; scale: 1.1; }
+  100% { transform: translate(100px,0); opacity: 0; }
 }

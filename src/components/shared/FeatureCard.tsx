@@ -1,7 +1,7 @@
 import {cn} from "@/lib/utils";
 import {FeatureInfoType} from "@/components/sections/hero/Features";
 
-export default function FeatureCard({Icon, title, description, className}: FeatureInfoType) {
+export default function FeatureCard({Icon, title, description, className, child}: FeatureInfoType) {
     return (
         <div className={cn("feature-card", className)}>
             <div className="w-full h-4/5"></div>

@@ -5,12 +5,14 @@ import {HiSparkles} from "react-icons/hi2";
 import {FaSave, FaShareAlt} from "react-icons/fa";
 import {MdEdit} from "react-icons/md";
 import FeatureCard from "@/components/shared/FeatureCard";
+import {ReactNode} from "react";
 
 export type FeatureInfoType = {
     title: string;
     description: string;
     Icon: IconType;
     className?: string;
+    child?: ReactNode;
 };
 
 const features: FeatureInfoType[] = [
@@ -18,27 +20,32 @@ const features: FeatureInfoType[] = [
         title: "AI-Powered System Architecture Generation",
         description: "Generate editable system designs based on your project description in any language.",
         Icon: HiSparkles,
-        className: "col-span-2"
+        className: "col-span-2",
+        // child: <AIPoweredBackground />
     },
     {
         title: "Real-Time Collaborative Editing",
         description: "Collaborate live with your team, making updates in real-time.",
-        Icon: FaUsers
+        Icon: FaUsers,
+        // child: <AIPoweredBackground />
     },
     {
         title: "Auto-Save and Versioning",
         description: "Auto-save your design every 5 seconds with version history.",
-        Icon: FaSave
+        Icon: FaSave,
+        // child: <AIPoweredBackground />
     },
     {
         title: "Customizable Design Templates",
         description: "Use or create templates that fit your project needs.",
-        Icon: MdEdit
+        Icon: MdEdit,
+        // child: <AIPoweredBackground />
     },
     {
         title: "Seamless Export Options",
         description: "Export your design in various formats (PDF, PNG).",
-        Icon: FaShareAlt
+        Icon: FaShareAlt,
+        // child: <AIPoweredBackground />
     }
 ];
 
