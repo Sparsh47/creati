@@ -8,15 +8,13 @@ import { HiOutlineSparkles } from "react-icons/hi2";
 import { FaUser } from "react-icons/fa6";
 import { FiUser, FiLayers, FiLogOut } from "react-icons/fi";
 import ApiKeyInput from "@/components/shared/ApiKeyInput";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import {useSession, signOut} from "next-auth/react";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
-    const { isLoggedIn, setIsLoggedIn, authInfo, setAuthInfo } = useAuth();
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const router = useRouter();
+    const {data: session} = useSession();
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 0);
@@ -35,16 +33,12 @@ export default function Navbar() {
         return () => document.removeEventListener("mousedown", onClickOutside);
     }, [open]);
 
-    const handleLogout = () => {
-        const authData = {
-            ...authInfo,
-            isLoggedIn: false,
-        }
-        setAuthInfo(authData);
-        setIsLoggedIn(false);
-        localStorage.setItem("authInfo", JSON.stringify(authData));
+    const handleLogout = async () => {
         setOpen(false);
-        router.replace("/");
+        await signOut({
+            redirect: true,
+            callbackUrl: "/"
+        })
     };
 
     return (
@@ -73,7 +67,7 @@ export default function Navbar() {
                     </h1>
                 </Link>
 
-                {isLoggedIn ? (
+                {session ? (
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setOpen((o) => !o)}
@@ -86,9 +80,8 @@ export default function Navbar() {
                             <div
                                 className="
                   absolute right-0 mt-2 w-44 p-2
-                  bg-gradient-to-br from-blue-50/40 via-blue-100/30 to-blue-200/30
-                  backdrop-blur-3xl
-                  border border-blue-200/50
+                  bg-white/30 backdrop-blur-md
+                  border-2 border-blue-200
                   rounded-lg
                   shadow-xl shadow-blue-500/20
                   z-50
