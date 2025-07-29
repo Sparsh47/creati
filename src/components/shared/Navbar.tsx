@@ -16,8 +16,6 @@ export default function Navbar() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const {data: session} = useSession();
 
-    console.log("Session", session);
-
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 0);
         handleScroll();

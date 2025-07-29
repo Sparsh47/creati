@@ -45,6 +45,21 @@ export const authOptions: AuthOptions = {
         })
     ],
     callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider === "google" && user.email) {
+                try {
+                    await axios.post(`${process.env.BACKEND_URL}/auth/oauth/google`, {
+                        email: user.email,
+                        name: user.name,
+                    });
+                } catch (err) {
+                    console.error("Failed to upsert Google user in backend:", err);
+                    return false;
+                }
+            }
+
+            return true;
+        },
         async jwt({ token, user }): Promise<JWT> {
             if (user) {
                 return {
