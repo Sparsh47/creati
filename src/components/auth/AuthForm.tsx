@@ -98,6 +98,7 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
             <div className="w-full flex flex-col items-center justify-center gap-6">
                 <button
                     className="oauth-btn"
+                    onClick={()=>signIn("google", {callbackUrl: "/"})}
                 >
                     <FaGoogle size={24} className="text-blue-400" />
                     <p>Sign {type === "signin" ? "in" : "up"} with Google</p>

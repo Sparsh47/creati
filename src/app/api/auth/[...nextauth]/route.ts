@@ -1,6 +1,7 @@
 import NextAuth, {AuthOptions} from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google"
 import axios from "axios";
 
 const ACCESS_TOKEN_TTL = 15 * 60 * 1000;
@@ -10,6 +11,10 @@ export const authOptions: AuthOptions = {
     session: {strategy: "jwt"},
 
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_OAUTH_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
+        }),
         CredentialsProvider({
             name: "Email & Password",
             credentials: {
