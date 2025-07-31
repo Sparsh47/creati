@@ -16,7 +16,6 @@ export const generateResponse = async (prompt: string, apiKey: string) => {
         if (jsonMatch && jsonMatch[1]) {
             try {
                 const parsedJson = JSON.parse(jsonMatch[1]);
-                console.log(parsedJson);
                 return parsedJson;
             } catch (e) {
                 console.error("Failed to parse JSON:", e);

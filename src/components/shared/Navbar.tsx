@@ -71,15 +71,15 @@ export default function Navbar() {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setOpen((o) => !o)}
-                            className={cn("p-3 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30 cursor-pointer", session.user.image && "bg-transparent border-none p-0")}
+                            className={cn("w-12 h-12 p-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30 cursor-pointer", session.user.image && "bg-transparent border-none p-0")}
                         >
-                            {session.user ? session.user.image ? <Image src={session.user.image} width={50} height={50} alt={session.user.name!} className="rounded-full" /> : <p className="text-lg text-white font-bold px-1">{session.user.name!.split(" ").map((el)=>el.charAt(0).toUpperCase()).join("")}</p> : <FaUser size={24} color="white"/>}
+                            {session.user ? session.user.image ? <Image src={session.user.image} width={50} height={50} alt={session.user.name!} className="rounded-full" /> : <p className="text-lg text-white font-bold rounded-full">{session.user.name!.split(" ").map((el)=>el.charAt(0).toUpperCase()).join("")}</p> : <FaUser size={24} color="white"/>}
                         </button>
 
                         {open && (
                             <div
                                 className="
-                  absolute right-0 w-44 p-2
+                  absolute right-0 mt-2 w-44 p-2
                   bg-white/30 backdrop-blur-md
                   border-2 border-blue-200
                   rounded-lg

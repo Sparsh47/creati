@@ -8,6 +8,7 @@ import { FlowNode, useDesignResponse } from "@/context/DesignResponseContext";
 import { Edge } from "@xyflow/react";
 import { toast } from "react-hot-toast";
 import { useApiKey } from "@/context/ApiKeyContext";
+import {useSession} from "next-auth/react";
 
 interface SearchBarProps {
     placeholder?: string;
@@ -30,6 +31,7 @@ export default function SearchBar({
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { setNodes, setEdges } = useDesignResponse();
     const { apiKey } = useApiKey();
+    const {data: session} = useSession();
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -49,8 +51,12 @@ export default function SearchBar({
     const sendDescription = async () => {
         try {
             if (!apiKey) {
-                console.warn("No API key set.");
+                toast.error("No API key set.");
                 return;
+            }
+            if (!session) {
+               toast.error("Authentication required");
+               return;
             }
             if (search.trim().length === 0) {
                 toast.error("Please enter a valid description");

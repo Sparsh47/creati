@@ -14,6 +14,13 @@ export const authOptions: AuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_OAUTH_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
         }),
         CredentialsProvider({
             name: "Email & Password",
@@ -48,10 +55,19 @@ export const authOptions: AuthOptions = {
         async signIn({ user, account }) {
             if (account?.provider === "google" && user.email) {
                 try {
-                    await axios.post(`${process.env.BACKEND_URL}/auth/oauth/google`, {
+                    const {data} = await axios.post(`${process.env.BACKEND_URL}/auth/oauth/google`, {
                         email: user.email,
                         name: user.name,
+                        googleAccessToken: account.access_token,
+                        googleRefreshToken: account.refresh_token,
                     });
+
+                    if(data?.accessToken && data?.refreshToken) {
+                        user.accessToken = data.accessToken;
+                        user.refreshToken = data.refreshToken;
+                    }
+
+                    return true;
                 } catch (err) {
                     console.error("Failed to upsert Google user in backend:", err);
                     return false;
@@ -60,12 +76,12 @@ export const authOptions: AuthOptions = {
 
             return true;
         },
-        async jwt({ token, user }): Promise<JWT> {
-            if (user) {
+        async jwt({ token, user, account }): Promise<JWT> {
+            if (account && user) {
                 return {
                     ...token,
-                    accessToken:  user.accessToken!,
-                    refreshToken: user.refreshToken!,
+                    accessToken: user.accessToken,
+                    refreshToken: user.refreshToken,
                     accessTokenExpires: Date.now() + ACCESS_TOKEN_TTL
                 };
             }
@@ -76,12 +92,12 @@ export const authOptions: AuthOptions = {
 
             try {
                 const { data } = await axios.post(
-                    `${process.env.BACKEND_URL!}/auth/refresh`,
+                    `${process.env.BACKEND_URL}/auth/refresh`,
                     { refreshToken: token.refreshToken }
                 );
                 return {
                     ...token,
-                    accessToken:  data.accessToken,
+                    accessToken: data.accessToken,
                     refreshToken: data.refreshToken,
                     accessTokenExpires: Date.now() + ACCESS_TOKEN_TTL
                 };
