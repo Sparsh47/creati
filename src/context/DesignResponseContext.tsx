@@ -8,9 +8,13 @@ type DesignResponseContextValue = {
     nodes: FlowNode[];
     edges: Edge[];
     userPrompt: string;
+    loading: boolean;
+    loaderValue: number;
     setNodes: Dispatch<SetStateAction<FlowNode[]>>
     setEdges: Dispatch<SetStateAction<Edge[]>>
     setUserPrompt: Dispatch<SetStateAction<string>>
+    setLoading: Dispatch<SetStateAction<boolean>>
+    setLoaderValue: Dispatch<SetStateAction<number>>
 }
 
 export type FlowNode = Node<BaseNodeData & { icon: string }> & {
@@ -25,9 +29,11 @@ const DesignResponseProvider = ({ children }: { children: ReactNode }) => {
     const [nodes, setNodes] = useState<FlowNode[]>([])
     const [edges, setEdges] = useState<Edge[]>([])
     const [userPrompt, setUserPrompt] = useState<string>("")
+    const [loading, setLoading] = useState<boolean>(false);
+    const [loaderValue, setLoaderValue] = useState<number>(0);
 
     return (
-        <DesignResponseContext.Provider value={{nodes, edges, userPrompt, setNodes, setEdges, setUserPrompt}}>
+        <DesignResponseContext.Provider value={{nodes, edges, userPrompt, loaderValue, loading, setNodes, setEdges, setUserPrompt, setLoaderValue, setLoading}}>
             {children}
         </DesignResponseContext.Provider>
     )
@@ -42,14 +48,7 @@ const useDesignResponse = () => {
         );
     }
 
-    return {
-        nodes: context.nodes,
-        edges: context.edges,
-        userPrompt: context.userPrompt,
-        setNodes: context.setNodes,
-        setEdges: context.setEdges,
-        setUserPrompt: context.setUserPrompt,
-    }
+    return context
 
 }
 

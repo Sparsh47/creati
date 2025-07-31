@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Hero from "@/components/sections/hero/Hero";
 import Footer from "@/components/shared/Footer";
@@ -7,19 +9,32 @@ import Testimonials from "@/components/sections/hero/Testimonials";
 import Pricing from "@/components/sections/hero/Pricing";
 import FAQ from "@/components/sections/hero/FAQ";
 import CTA from "@/components/sections/hero/CTA";
+import {useDesignResponse} from "@/context/DesignResponseContext";
+import {Progress} from "@/components/ui/progress";
 
 export default function Home() {
 
+    const {loading, loaderValue} = useDesignResponse();
+
     return (
+
         <>
-            <Hero />
-            <Features />
-            <Steps />
-            <Testimonials />
-            <Pricing />
-            <FAQ />
-            <CTA />
-            <Footer />
+            {loading ? (
+                <div className="w-full h-screen flex items-center justify-center">
+                    <Progress value={loaderValue} className="w-full max-w-3xl" />
+                </div>
+            ) : (
+                <>
+                    <Hero />
+                    <Features />
+                    <Steps />
+                    <Testimonials />
+                    <Pricing />
+                    <FAQ />
+                    <CTA />
+                    <Footer />
+                </>
+            )}
         </>
     );
 }

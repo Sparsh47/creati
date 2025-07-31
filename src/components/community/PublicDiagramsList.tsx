@@ -37,10 +37,12 @@ export default function PublicDiagramsList() {
     if (isLoading) return <div className="w-full h-screen flex items-center justify-center">Loading Diagrams...</div>;
     if (error) return <div className="w-full h-screen flex items-center justify-center">Failed to load diagrams: {error.message}</div>;
 
+    console.log("Data: ", data.data);
+
     return (<div>
 
         <div className="w-full h-screen flex items-center justify-center">
-            {data.data.length ? data.data.map((d, i) => (
+            {data.data.data.length ? data.data.data.map((d, i) => (
                 <div>Diagram {i}</div>
             )) : <p className="text-xl font-semibold">No Designs Found</p>}
         </div>

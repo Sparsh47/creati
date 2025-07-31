@@ -1,7 +1,13 @@
-export default function FlowPage({params}: {params: {id: string}}) {
+import {
+    ReactFlowProvider,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import FlowContent from "@/components/shared/FlowContent";
+
+export default function Flow() {
     return (
-        <div className="w-full h-screen flex items-center justify-center">
-            <p>{params.id ?? "Individual design page"}</p>
-        </div>
-    )
+        <ReactFlowProvider>
+            <FlowContent />
+        </ReactFlowProvider>
+    );
 }

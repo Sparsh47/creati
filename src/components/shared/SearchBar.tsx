@@ -9,13 +9,12 @@ import { Edge } from "@xyflow/react";
 import { toast } from "react-hot-toast";
 import { useApiKey } from "@/context/ApiKeyContext";
 import {useSession} from "next-auth/react";
+import axios from "axios";
 
 interface SearchBarProps {
     placeholder?: string;
     search: string;
     onSearch: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-    setLoading: Dispatch<SetStateAction<boolean>>;
-    setLoaderValue: Dispatch<SetStateAction<number>>;
     clearSearch: () => void;
 }
 
@@ -23,13 +22,11 @@ export default function SearchBar({
                                       placeholder,
                                       search,
                                       onSearch,
-                                      setLoading,
-                                      setLoaderValue,
                                       clearSearch,
                                   }: SearchBarProps) {
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { setNodes, setEdges } = useDesignResponse();
+    const { setNodes, setEdges, setLoading, setLoaderValue } = useDesignResponse();
     const { apiKey } = useApiKey();
     const {data: session} = useSession();
 
@@ -67,6 +64,12 @@ export default function SearchBar({
             setTimeout(() => setLoaderValue(33), 3500);
             setTimeout(() => setLoaderValue(75), 5500);
             const response = await generateResponse(generatePrompt(search), apiKey);
+            const designResponse = await axios.post("/api/design", JSON.stringify({
+                prompt: search,
+                nodes: response.nodes,
+                edges: response.edges,
+            }));
+            const designId = designResponse.data.design.id;
             setLoaderValue(100);
 
             const parsedNodes = response.nodes as FlowNode[];
@@ -78,10 +81,12 @@ export default function SearchBar({
             setNodes(parsedNodes);
             setEdges(parsedEdges);
 
-            router.push("/flow");
+            router.push(`/flow/${designId}`);
             clearSearch();
         } catch (error) {
             console.error("Failed to fetch or parse Gemini response:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
