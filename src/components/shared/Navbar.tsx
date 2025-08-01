@@ -9,6 +9,7 @@ import { FaUser } from "react-icons/fa6";
 import { FiUser, FiLayers, FiLogOut } from "react-icons/fi";
 import ApiKeyInput from "@/components/shared/ApiKeyInput";
 import {useSession, signOut} from "next-auth/react";
+import {GoPeople} from "react-icons/go";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -102,6 +103,14 @@ export default function Navbar() {
                                 >
                                     <FiLayers size={16} />
                                     Your Designs
+                                </Link>
+                                <Link
+                                    href="/community"
+                                    onClick={() => setOpen(false)}
+                                    className="dropdown-btn mb-1"
+                                >
+                                    <GoPeople size={16} />
+                                    Community
                                 </Link>
                                 <button
                                     onClick={handleLogout}

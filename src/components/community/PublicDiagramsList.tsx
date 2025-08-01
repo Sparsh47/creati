@@ -4,9 +4,10 @@ import {useAuthStore} from "@/stores/auth";
 import {useRouter} from "next/navigation";
 import {useEffect} from "react";
 import useSWR from "swr";
-import {authenticatedFetcher} from "@/lib/fetchers";
-import Image from "next/image";
-import {IoMdRefresh} from "react-icons/io";
+import {authenticatedFetcher, fetcherOptions} from "@/lib/fetchers";
+import Link from "next/link";
+import {LuCirclePlus} from "react-icons/lu";
+import {HiUsers} from "react-icons/hi2";
 
 export default function PublicDiagramsList() {
 
@@ -19,17 +20,10 @@ export default function PublicDiagramsList() {
         }
     }, [router, auth]);
 
-    const {data, error, isLoading, mutate} = useSWR(
+    const {data, error, isLoading} = useSWR(
         auth.accessToken ? ["api/all-designs", auth.accessToken] : null,
         authenticatedFetcher,
-        {
-            refreshInterval: 60000,
-            revalidateOnFocus: true,
-            revalidateOnReconnect: true,
-            dedupingInterval: 5000,
-            errorRetryCount: 3,
-            errorRetryInterval: 1000
-        }
+        fetcherOptions
     )
 
     if (auth.status === "loading") return <div className="w-full h-screen flex items-center justify-center">Loading session...</div>;
@@ -37,14 +31,19 @@ export default function PublicDiagramsList() {
     if (isLoading) return <div className="w-full h-screen flex items-center justify-center">Loading Diagrams...</div>;
     if (error) return <div className="w-full h-screen flex items-center justify-center">Failed to load diagrams: {error.message}</div>;
 
-    console.log("Data: ", data.data);
-
     return (<div>
-
         <div className="w-full h-screen flex items-center justify-center">
             {data.data.data.length ? data.data.data.map((d, i) => (
                 <div>Diagram {i}</div>
-            )) : <p className="text-xl font-semibold">No Designs Found</p>}
+            )) : <div className="w-full h-[calc(100vh-200px)] flex flex-col gap-3 items-center justify-center">
+                <div className="rounded-full text-white p-3 bg-blue-500/90"><HiUsers size={40} /></div>
+                <div className="text-center max-w-md">
+                    <h3 className="text-3xl font-bold text-blue-500">No public designs yet</h3>
+                    <p className="text-gray-800 text-sm">Be the first to share your creativity with the community. Upload your design and inspire others.</p>
+                </div>
+                <Link href="/" className="cta-btn"><LuCirclePlus size={20} /> <span className="font-medium">Create Your Design</span></Link>
+            </div>
+            }
         </div>
     </div>
 );

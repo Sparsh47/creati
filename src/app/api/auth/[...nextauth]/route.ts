@@ -62,9 +62,11 @@ export const authOptions: AuthOptions = {
                         googleRefreshToken: account.refresh_token,
                     });
 
-                    if(data?.accessToken && data?.refreshToken) {
+                    if(data?.accessToken && data?.refreshToken && data?.user.id) {
+                        user.id = data.user.id;
                         user.accessToken = data.accessToken;
                         user.refreshToken = data.refreshToken;
+                        user.image = user.image || null;
                     }
 
                     return true;
@@ -80,6 +82,7 @@ export const authOptions: AuthOptions = {
             if (account && user) {
                 return {
                     ...token,
+                    userId: user?.id,
                     accessToken: user.accessToken,
                     refreshToken: user.refreshToken,
                     accessTokenExpires: Date.now() + ACCESS_TOKEN_TTL
@@ -109,6 +112,7 @@ export const authOptions: AuthOptions = {
         async session({ session, token }) {
             session.user = {
                 ...session.user,
+                id: token.userId || token.sub!,
                 accessToken: token.accessToken,
                 refreshToken: token.refreshToken,
             };
