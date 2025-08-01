@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {
     addEdge,
     applyEdgeChanges,
@@ -11,19 +11,29 @@ import {
     OnEdgesChange,
     OnNodesChange,
     ReactFlow,
-    useReactFlow
+    useReactFlow,
+    getViewportForBounds,
+    MarkerType
 } from "@xyflow/react";
 import BaseNode from "@/components/custom-nodes/BaseNode";
-import { toast } from "react-hot-toast";
 import { GoPlus } from "react-icons/go";
 import { MdPlayArrow } from "react-icons/md";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {FlowNode, useDesignResponse} from "@/context/DesignResponseContext";
 import {DynamicIcon} from "@/components/shared/DynamicIcon";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+import { toPng } from 'html-to-image';
+import axios from "axios";
 
 export default function FlowContent() {
+    const { data: session } = useSession();
+    const params = useParams();
+    const designId = params.id as string;
+
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const { getViewport } = useReactFlow();
+    const [hasScreenshotTaken, setHasScreenshotTaken] = useState<boolean>(false);
+    const { getViewport, getNodesBounds } = useReactFlow();
 
     const [showMenu, setShowMenu] = useState(false);
     const [hoveredKey, setHoveredKey] = useState<string | null>(null);
@@ -49,9 +59,11 @@ export default function FlowContent() {
     const onNodesChange: OnNodesChange = useCallback((changes) => {
         setNodes(nds => applyNodeChanges(changes, nds) as FlowNode[]);
     }, []);
+
     const onEdgesChange: OnEdgesChange = useCallback((changes) => {
         setEdges(eds => applyEdgeChanges(changes, eds));
     }, []);
+
     const onConnect = useCallback((c: Connection) => {
         setEdges(eds => addEdge(c, eds));
     }, []);
@@ -67,6 +79,119 @@ export default function FlowContent() {
             a.y + a.height > b.y,
         []
     );
+
+    // Silent screenshot upload to backend
+    const uploadScreenshotToBackend = useCallback(async (dataUrl: string) => {
+        try {
+            if (!session?.user?.accessToken || !session?.user?.id) {
+                return false;
+            }
+
+            if (!designId) {
+                return false;
+            }
+
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+
+            const formData = new FormData();
+            formData.append('file', blob, `diagram-${Date.now()}.png`);
+
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/designs/upload-image/${session.user.id}/${designId}`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${session.user.accessToken}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    timeout: 30000,
+                }
+            );
+
+            return true;
+        } catch (error) {
+            console.error('Screenshot upload failed silently:', error);
+            return false;
+        }
+    }, [session, designId]);
+
+    // ✅ ENHANCED: Screenshot function specifically for step edges
+    const takeScreenshotWithStepEdges = useCallback(async () => {
+        try {
+            if (!designId || nodes.length === 0) {
+                return false;
+            }
+
+            // Wait longer for React Flow to fully render step edges
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const nodesBounds = getNodesBounds(nodes);
+            const imageWidth = nodesBounds.width + 120; // Extra padding for step edges
+            const imageHeight = nodesBounds.height + 120;
+
+            const transform = getViewportForBounds(
+                nodesBounds,
+                imageWidth,
+                imageHeight,
+                0.5,
+                2,
+                60 // More padding for step edges
+            );
+
+            const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
+
+            if (!viewport) {
+                return false;
+            }
+
+            // ✅ Enhanced options specifically for step edges
+            const dataUrl = await toPng(viewport, {
+                backgroundColor: 'transparent',
+                width: imageWidth,
+                height: imageHeight,
+                style: {
+                    width: `${imageWidth}px`,
+                    height: `${imageHeight}px`,
+                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+                },
+                filter: (node) => {
+                    // Keep all edge elements
+                    return !(
+                        node?.classList?.contains('react-flow__minimap') ||
+                        node?.classList?.contains('react-flow__controls') ||
+                        node?.classList?.contains('react-flow__attribution')
+                    );
+                },
+                pixelRatio: 3,
+                canvasWidth: imageWidth,
+                canvasHeight: imageHeight,
+                skipAutoScale: true,
+                skipFonts: false,
+                // useCORS: true,
+                // allowTaint: true,
+            });
+
+            console.log('Screenshot captured with step edges!');
+            await uploadScreenshotToBackend(dataUrl);
+            return true;
+        } catch (error) {
+            console.error('Step edge screenshot failed:', error);
+            return false;
+        }
+    }, [nodes, uploadScreenshotToBackend, designId]);
+
+    // Auto-screenshot after 5 seconds - completely silent
+    useEffect(() => {
+        if (hasScreenshotTaken) return;
+
+        const timer = setTimeout(async () => {
+            await takeScreenshotWithStepEdges();
+            setHasScreenshotTaken(true);
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [hasScreenshotTaken, takeScreenshotWithStepEdges]);
 
     const addNodeOfType = useCallback(
         (typeKey: string) => {
@@ -92,7 +217,6 @@ export default function FlowContent() {
                     y: panY + Math.random() * (viewH - NEW_H)
                 };
                 if (++tries > 500) {
-                    toast.error("Couldn't find a free spot.");
                     return;
                 }
             } while (
@@ -165,7 +289,6 @@ export default function FlowContent() {
 
     return (
         <main className="w-full h-full relative" style={{ height: "100vh" }}>
-
             <div className="absolute bottom-10 right-10 flex flex-col items-center z-50">
                 <AnimatePresence>
                     {showMenu && (
@@ -246,23 +369,35 @@ export default function FlowContent() {
                     onConnect={onConnect}
                     nodeTypes={{ baseNode: BaseNode }}
                     defaultEdgeOptions={{
-                            type: "step",
-                            animated: true,
-                            style: {
-                                stroke: '#4B5563',
-                                strokeWidth: 8,
-                                strokeDasharray: '6 4',
-                            },
-                            labelStyle: {
-                                fill: '#111827',
-                                fontSize: 16,
-                                fontWeight: 500,
-                                background: 'rgba(255,255,255,0.8)',
-                                padding: '2px 4px',
-                                borderRadius: 4,
-                            },
-                        }}
+                        type: "step",
+                        animated: true,
+                        markerEnd: {
+                            type: MarkerType.ArrowClosed,
+                            width: 20,
+                            height: 20,
+                        },
+                        style: {
+                            stroke: '#4B5563',
+                            strokeWidth: 8,
+                            strokeDasharray: '6 4',
+                        },
+                        // ✅ FIXED: Remove all background styling that causes black backgrounds
+                        labelStyle: {
+                            fill: '#1f2937',
+                            fontSize: 18, // Increased size for better visibility
+                            fontWeight: 'bold',
+                            color: '#1f2937',
+                            // ✅ Remove all background properties
+                            background: 'none',
+                            backgroundColor: 'none',
+                            // ✅ Add strong text shadow for visibility without background
+                            textShadow: '2px 2px 4px rgba(255,255,255,0.9), -1px -1px 2px rgba(255,255,255,0.9), 1px -1px 2px rgba(255,255,255,0.9), -1px 1px 2px rgba(255,255,255,0.9)',
+                            padding: '0', // Remove padding that might cause background issues
+                        },
+                    }}
                     defaultViewport={{x: 0, y: 0, zoom: 0.5}}
+                    onlyRenderVisibleElements={false}
+                    elevateEdgesOnSelect={false}
                 >
                     <Background />
                     <Controls />
