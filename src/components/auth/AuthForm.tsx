@@ -82,23 +82,16 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         }
     };
 
-    // ✅ Fixed Google sign-in handler
     const handleGoogleSignIn = async () => {
         setLoading(true);
 
         try {
             const result = await signIn("google", {
-                redirect: false // ✅ Don't auto-redirect
+                callbackUrl: "/"
             });
+            toast.success("Google sign-in successful");
+            await update();
 
-            if (result?.ok) {
-                // ✅ Force session update immediately after successful sign-in
-                await update();
-                toast.success("Google sign-in successful");
-                router.push("/"); // Manual redirect after session update
-            } else if (result?.error) {
-                setError("Google sign-in failed. Please try again.");
-            }
         } catch (error) {
             console.error('Google sign-in failed:', error);
             setError("Google sign-in failed. Please try again.");

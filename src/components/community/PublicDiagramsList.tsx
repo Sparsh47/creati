@@ -8,6 +8,8 @@ import {authenticatedFetcher, fetcherOptions} from "@/lib/fetchers";
 import Link from "next/link";
 import {LuCirclePlus} from "react-icons/lu";
 import {HiUsers} from "react-icons/hi2";
+import {DesignCardType} from "@/types/designs";
+import DesignCard from "@/components/DesignCard";
 
 export default function PublicDiagramsList() {
 
@@ -33,8 +35,15 @@ export default function PublicDiagramsList() {
 
     return (<div>
         <div className="w-full h-screen flex items-center justify-center">
-            {data.data.data.length ? data.data.data.map((d, i) => (
-                <div>Diagram {i}</div>
+            {data.data.data.length ? data.data.data.map((design: DesignCardType) => (
+                    <DesignCard
+                        key={design.id}
+                        id={design.id}
+                        images={design.images}
+                        createdAt={design.createdAt}
+                        prompt={design.prompt}
+                        visibility={design.visibility}
+                    />
             )) : <div className="w-full h-[calc(100vh-200px)] flex flex-col gap-3 items-center justify-center">
                 <div className="rounded-full text-white p-3 bg-blue-500/90"><HiUsers size={40} /></div>
                 <div className="text-center max-w-md">

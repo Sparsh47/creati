@@ -166,6 +166,9 @@
   .feature-card {
     @apply p-3 border-2 border-blue-100 shadow-xl shadow-blue-500/20 bg-blue-50/30 backdrop-blur-md rounded-xl hover:border-blue-200 duration-150 ease-in-out transition-all;
   }
+  .personal-info-cards {
+    @apply bg-white/30 backdrop-blur-md border-2 border-blue-200 shadow-blue-500/20 shadow-xl p-5 rounded-xl;
+  }
 }
 
 @layer utilities {
@@ -183,6 +186,9 @@
   }
   .cta-btn {
     @apply flex items-center justify-center gap-2 bg-gradient-to-tl from-blue-700 via-blue-500 to-blue-400 rounded-xl text-white py-3 px-6 shadow-xl hover:shadow-lg shadow-blue-500/30 ease-in-out transition-all duration-200;
+  }
+  .cta-btn-disabled {
+    @apply flex items-center justify-center gap-2 bg-gradient-to-tl from-blue-700 via-blue-500 to-blue-400 rounded-xl text-white py-3 px-6 shadow-xl shadow-blue-500/30 ease-in-out transition-all duration-200 opacity-60;
   }
   .float-animation {
     animation: float 5s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
