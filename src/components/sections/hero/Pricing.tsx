@@ -10,6 +10,10 @@ export type Plan = {
     id: string;
     title: string;
     price: {
+        priceId: {
+            monthly: string;
+            yearly: string;
+        };
         monthly: string;
         yearly: string;
     };
@@ -24,6 +28,10 @@ export const pricingPlans: Plan[] = [
         id: 'starter',
         title: 'Starter',
         price: {
+            priceId: {
+                monthly: "price_1RsK2JSsg21IEsaK7V0VcxZX",
+                yearly: "price_1RsK2tSsg21IEsaK5e0JJOZJ"
+            },
             monthly: '0',
             yearly: '0'
         },
@@ -42,8 +50,12 @@ export const pricingPlans: Plan[] = [
         id: 'professional',
         title: 'Professional',
         price: {
-            monthly: '29',
-            yearly: '299'
+            priceId: {
+                monthly: "price_1Rs5IOSsg21IEsaKPQhRl4aX",
+                yearly: "price_1Rs5QcSsg21IEsaKymrRCdNw"
+            },
+            monthly: '20',
+            yearly: '200'
         },
         duration: 'month',
         description: 'Premium Plan',
@@ -61,8 +73,12 @@ export const pricingPlans: Plan[] = [
         id: 'enterprise',
         title: 'Enterprise Plus',
         price: {
-            monthly: '99',
-            yearly: '999'
+            priceId: {
+                monthly: "price_1Rs5OqSsg21IEsaKMvE6F6dZ",
+                yearly: "price_1Rs5RCSsg21IEsaKpbAWq3Du"
+            },
+            monthly: '80',
+            yearly: '800'
         },
         duration: 'month',
         description: 'Enterprise Plan',
@@ -98,10 +114,12 @@ export default function Pricing() {
                         const displayPrice =
                             billingPeriod === 'monthly' ? plan.price.monthly : plan.price.yearly;
                         const displayDuration = billingPeriod === 'monthly' ? 'month' : 'year';
+                        const pricingId = billingPeriod === 'monthly' ? plan.price.priceId.monthly : plan.price.priceId.yearly
 
                         return (
                             <PricingCard
                                 key={plan.id}
+                                priceId={pricingId}
                                 price={displayPrice}
                                 duration={displayDuration}
                                 description={plan.description}

@@ -11,6 +11,7 @@ import FAQ from "@/components/sections/hero/FAQ";
 import CTA from "@/components/sections/hero/CTA";
 import {useDesignResponse} from "@/context/DesignResponseContext";
 import {Progress} from "@/components/ui/progress";
+import Navbar from "@/components/shared/Navbar";
 
 export default function Home() {
 
@@ -25,6 +26,7 @@ export default function Home() {
                 </div>
             ) : (
                 <>
+                    <Navbar />
                     <Hero />
                     <Features />
                     <Steps />

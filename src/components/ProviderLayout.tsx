@@ -39,7 +39,6 @@ function ProviderSync({ children }: { children: ReactNode }) {
     }, [sessionData, status]);
     return (
         <>
-            <Navbar />
             <Toaster position="top-right" />
             <DesignResponseProvider>
                 <Animator>

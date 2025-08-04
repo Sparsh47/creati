@@ -1,10 +1,16 @@
 import React from 'react';
 import { FaCircleCheck } from 'react-icons/fa6';
 import { cn } from '@/lib/utils';
-import Link from "next/link";
+import {toast} from "react-hot-toast";
+import axios from "axios";
+import {useSession} from "next-auth/react";
+import {loadStripe} from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export type PricingCardProps = {
     price: string;
+    priceId: string;
     duration: 'month' | 'year';
     description: string;
     features: string[];
@@ -14,12 +20,49 @@ export type PricingCardProps = {
 
 export default function PricingCard({
                                         price,
+                                        priceId,
                                         duration,
                                         description,
                                         features,
                                         onAction,
                                         highlight = false,
                                     }: PricingCardProps) {
+
+    const {data: session, status} = useSession();
+
+    const handleSubscription = async () => {
+        try {
+
+            if(status==="unauthenticated") {
+                toast.error("Login is required.");
+                return;
+            }
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/create-checkout-session`, {priceId: priceId}, {
+                headers: {
+                    Authorization: `Bearer: ${session?.user.accessToken}`
+                }
+            });
+
+            const sessionId = response.data.sessionId;
+
+            console.log("Session: ", response.data.sessionId);
+
+            const stripe = await stripePromise;
+
+            if (!stripe) toast.error('Stripe failed to load');
+
+            // @ts-ignore
+            const {error} = await stripe?.redirectToCheckout({sessionId});
+
+            if(error){
+                toast.error("Redirect Error: ", error.message);
+            }
+        } catch (e: any) {
+            toast.error("Error subscribing to a plan")
+        }
+    }
+
     return (
         <div
             className={cn(
@@ -39,14 +82,11 @@ export default function PricingCard({
                 <p className="mt-2 text-sm text-blue-500">{description}</p>
             </div>
 
-            <Link href={{
-                pathname: '/signin',
-                query: 'type=signin&plan=PLAN_ID'
-            }}
+            <button onClick={handleSubscription}
                 className="cursor-pointer mt-4 w-full flex items-center justify-center py-2 rounded-lg font-semibold text-white bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 shadow-md shadow-blue-500/50 transition-transform duration-200 hover:scale-[1.02]"
             >
                 Subscribe
-            </Link>
+            </button>
 
             <ul className="mt-6 space-y-3">
                 {features.map((feat, i) => (
