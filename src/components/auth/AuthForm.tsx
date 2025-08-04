@@ -57,13 +57,13 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         }
 
         const result = await signIn("credentials", {
-            redirect: false, // ✅ Don't auto-redirect
+            redirect: false,
             email,
             password,
             csrfToken,
+            callbackUrl: "/"
         });
 
-        // Clear form fields
         if(type === "signup") {
             nameRef.current!.value = "";
         }
@@ -74,22 +74,19 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
             setLoading(false);
             setError("Invalid email or password");
         } else if (result?.ok) {
-            // ✅ Force session update after successful credentials sign-in
             await update();
             toast.success("User logged in successfully");
-            router.push("/"); // Manual redirect after session update
+            router.push("/");
             setLoading(false);
         }
     };
 
     const handleGoogleSignIn = async () => {
         setLoading(true);
+        toast("Redirecting to Google sign-in...");
 
         try {
-            const result = await signIn("google", {
-                callbackUrl: "/"
-            });
-            toast.success("Google sign-in successful");
+            await signIn("google", {callbackUrl: "/"});
             await update();
 
         } catch (error) {
@@ -117,7 +114,6 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
                 </p>
             </div>
 
-            {/* ✅ Show error message */}
             {error && (
                 <div className="w-[85%] p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                     {error}
@@ -127,8 +123,8 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
             <div className="w-full flex flex-col items-center justify-center gap-6">
                 <button
                     className="oauth-btn"
-                    onClick={handleGoogleSignIn} // ✅ Fixed function name
-                    disabled={loading} // ✅ Disable during loading
+                    onClick={handleGoogleSignIn}
+                    disabled={loading}
                 >
                     {loading ? (
                         <Spinner />

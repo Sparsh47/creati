@@ -371,28 +371,20 @@ export default function FlowContent() {
                     defaultEdgeOptions={{
                         type: "step",
                         animated: true,
-                        markerEnd: {
-                            type: MarkerType.ArrowClosed,
-                            width: 20,
-                            height: 20,
-                        },
                         style: {
                             stroke: '#4B5563',
                             strokeWidth: 8,
                             strokeDasharray: '6 4',
                         },
-                        // ✅ FIXED: Remove all background styling that causes black backgrounds
                         labelStyle: {
                             fill: '#1f2937',
-                            fontSize: 18, // Increased size for better visibility
+                            fontSize: 18,
                             fontWeight: 'bold',
                             color: '#1f2937',
-                            // ✅ Remove all background properties
                             background: 'none',
                             backgroundColor: 'none',
-                            // ✅ Add strong text shadow for visibility without background
                             textShadow: '2px 2px 4px rgba(255,255,255,0.9), -1px -1px 2px rgba(255,255,255,0.9), 1px -1px 2px rgba(255,255,255,0.9), -1px 1px 2px rgba(255,255,255,0.9)',
-                            padding: '0', // Remove padding that might cause background issues
+                            padding: '0',
                         },
                     }}
                     defaultViewport={{x: 0, y: 0, zoom: 0.5}}
