@@ -10,6 +10,7 @@ import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {GoPlus} from "react-icons/go";
 import {LuCirclePlus, LuRefreshCw} from "react-icons/lu";
+import Sidebar from "@/components/sections/FlowPage/Sidebar";
 
 export default function DesignsPage() {
 
@@ -33,41 +34,44 @@ export default function DesignsPage() {
     if (error) return <div className="w-full h-screen flex items-center justify-center">Failed to load diagrams: {error.message}</div>;
 
     return (
-        <div className="w-full min-h-screen pt-40 px-6 pb-6 max-w-7xl mx-auto">
-            {designs.data.length>0 && <div className="mb-6 flex justify-end">
-                <button
-                    onClick={() => mutate()}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors duration-200 flex items-center gap-2"
-                    aria-label="Refresh designs"
-                >
-                    <LuRefreshCw size={20} />
-                    Refresh
-                </button>
-            </div>}
+        <div className="w-full flex">
+            <Sidebar />
+            <div className="w-full h-screen px-6 pb-6 max-w-7xl mx-auto">
+                {designs.data.length>0 && <div className="mb-6 flex justify-end">
+                    <button
+                        onClick={() => mutate()}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors duration-200 flex items-center gap-2"
+                        aria-label="Refresh designs"
+                    >
+                        <LuRefreshCw size={20} />
+                        Refresh
+                    </button>
+                </div>}
 
-            {designs.data.length > 0 ? (
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {designs.data.map((design: DesignCardType) => (
-                        <DesignCard
-                            key={design.id}
-                            id={design.id}
-                            images={design.images}
-                            createdAt={design.createdAt}
-                            prompt={design.prompt}
-                            visibility={design.visibility}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="w-full h-[calc(100vh-200px)] flex flex-col gap-3 items-center justify-center">
-                    <div className="rounded-full text-white p-3 bg-blue-500/90"><GoPlus size={40} /></div>
-                    <div className="text-center max-w-md">
-                        <h3 className="text-3xl font-bold text-blue-500">Create your first project</h3>
-                        <p className="text-gray-800 text-sm">You're just one step away from turning your ideas into reality. Let's get started.</p>
+                {designs.data.length > 0 ? (
+                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {designs.data.map((design: DesignCardType) => (
+                            <DesignCard
+                                key={design.id}
+                                id={design.id}
+                                images={design.images}
+                                createdAt={design.createdAt}
+                                prompt={design.prompt}
+                                visibility={design.visibility}
+                            />
+                        ))}
                     </div>
-                    <Link href="/" className="cta-btn"><LuCirclePlus size={20} /> <span className="font-medium">Create New Design</span></Link>
-                </div>
-            )}
+                ) : (
+                    <div className="w-full h-screen flex flex-col gap-3 items-center justify-center">
+                        <div className="rounded-full text-white p-3 bg-blue-500/90"><GoPlus size={40} /></div>
+                        <div className="text-center max-w-md">
+                            <h3 className="text-3xl font-bold text-blue-500">Create your first project</h3>
+                            <p className="text-gray-800 text-sm">You're just one step away from turning your ideas into reality. Let's get started.</p>
+                        </div>
+                        <Link href="/" className="cta-btn rounded-xl"><LuCirclePlus size={20} /> <span className="font-medium">Create New Design</span></Link>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

@@ -30,3 +30,17 @@ export const generateResponse = async (prompt: string, apiKey: string) => {
         throw new Error(`${e}`);
     }
 }
+
+export const generateTextResponse = async (prompt: string, apiKey: string) => {
+    try {
+        const genAi = new GoogleGenerativeAI(apiKey);
+        const model = genAi.getGenerativeModel({model: "gemini-2.5-flash"});
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text();
+
+        return text;
+    } catch (e: any) {
+        throw new Error(`${e}`);
+    }
+}

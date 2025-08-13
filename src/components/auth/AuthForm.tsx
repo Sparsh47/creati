@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaGoogle } from "react-icons/fa6";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import React, {useEffect, useRef, useState} from "react";
 import {getCsrfToken, signIn, useSession} from "next-auth/react";
 import axios from "axios";
@@ -12,20 +13,71 @@ import {useRouter} from "next/navigation";
 import Spinner from "@/components/shared/Spinner";
 import {cn} from "@/lib/utils";
 
+interface PasswordValidation {
+    minLength: boolean;
+    hasUppercase: boolean;
+    hasLowercase: boolean;
+    hasNumber: boolean;
+    hasSpecialChar: boolean;
+}
+
 export default function AuthForm({ type }: { type: "signup" | "signin" }) {
     const [show, setShow] = useState<boolean>(false);
     const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState<boolean>(false);
+    const [password, setPassword] = useState("");
+    const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
+        minLength: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasNumber: false,
+        hasSpecialChar: false,
+    });
+    const [showValidation, setShowValidation] = useState(false);
+
     const {update} = useSession();
     const router = useRouter();
     const nameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passRef = useRef<HTMLInputElement>(null);
 
+    const validationRules = [
+        { key: 'minLength', text: 'At least 8 characters' },
+        { key: 'hasUppercase', text: 'One uppercase letter' },
+        { key: 'hasLowercase', text: 'One lowercase letter' },
+        { key: 'hasNumber', text: 'One number' },
+        { key: 'hasSpecialChar', text: 'One special character' },
+    ];
+
     useEffect(() => {
         getCsrfToken().then((token)=>setCsrfToken(token));
     }, []);
+
+    const validatePassword = (password: string): PasswordValidation => {
+        return {
+            minLength: password.length >= 8,
+            hasUppercase: /[A-Z]/.test(password),
+            hasLowercase: /[a-z]/.test(password),
+            hasNumber: /\d/.test(password),
+            hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        };
+    };
+
+    const isPasswordValid = (validation: PasswordValidation): boolean => {
+        return Object.values(validation).every(Boolean);
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPassword = e.target.value;
+        setPassword(newPassword);
+
+        if (type === "signup") {
+            const validation = validatePassword(newPassword);
+            setPasswordValidation(validation);
+            setShowValidation(newPassword.length > 0);
+        }
+    };
 
     const handleShow = () => {
         setShow((prev) => !prev);
@@ -34,11 +86,17 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
-        setLoading(true);
 
         const name     = nameRef.current?.value;
         const email    = emailRef.current!.value;
         const password = passRef.current!.value;
+
+        if (type === "signup" && !isPasswordValid(passwordValidation)) {
+            setError("Please ensure your password meets all requirements");
+            return;
+        }
+
+        setLoading(true);
 
         if (type === "signup") {
             try {
@@ -57,11 +115,10 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         }
 
         const result = await signIn("credentials", {
-            redirect: false,
             email,
             password,
             csrfToken,
-            callbackUrl: "/"
+            callbackUrl: "/flow"
         });
 
         if(type === "signup") {
@@ -69,6 +126,8 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         }
         emailRef.current!.value = "";
         passRef.current!.value = "";
+        setPassword("");
+        setShowValidation(false);
 
         if (result?.error) {
             setLoading(false);
@@ -76,7 +135,7 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         } else if (result?.ok) {
             await update();
             toast.success("User logged in successfully");
-            router.push("/");
+            router.push("/flow");
             setLoading(false);
         }
     };
@@ -86,7 +145,7 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         toast("Redirecting to Google sign-in...");
 
         try {
-            await signIn("google", {callbackUrl: "/"});
+            await signIn("google", {callbackUrl: "/flow"});
             await update();
 
         } catch (error) {
@@ -97,9 +156,22 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
         }
     };
 
+    const ValidationItem = ({ isValid, text }: { isValid: boolean; text: string }) => (
+        <div className="flex items-center gap-2">
+            {isValid ? (
+                <IoCheckmarkCircle className="text-blue-500" size={16} />
+            ) : (
+                <IoCloseCircle className="text-red-500" size={16} />
+            )}
+            <span className={cn("text-sm", isValid ? "text-blue-600" : "text-red-600")}>
+                {text}
+            </span>
+        </div>
+    );
+
     return (
         <div
-            className={cn("w-full max-w-[32rem] flex flex-col items-center justify-between py-8 min-h-[70%] shadow-xl shadow-blue-500/20 border border-blue-500/15 rounded-2xl bg-gradient-to-br from-blue-50 via-blue-100/30 to-blue-200/30 backdrop-blur-3xl",
+            className={cn("w-full max-w-[30rem] flex flex-col items-center justify-center gap-8 py-8 shadow-xl shadow-blue-500/20 border border-blue-500/15 rounded-2xl bg-gradient-to-br from-blue-50 via-blue-100/30 to-blue-200/30 backdrop-blur-3xl",
                 type === "signin" && "justify-around"
             )}
         >
@@ -121,49 +193,64 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
             )}
 
             <div className="w-full flex flex-col items-center justify-center gap-6">
-                <button
-                    className="oauth-btn"
-                    onClick={handleGoogleSignIn}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <Spinner />
-                    ) : (
-                        <>
-                            <FaGoogle size={24} className="text-blue-400" />
-                            <p>Sign {type === "signin" ? "in" : "up"} with Google</p>
-                        </>
-                    )}
-                </button>
-                <p>or</p>
+                {/*<button*/}
+                {/*    className="oauth-btn"*/}
+                {/*    onClick={handleGoogleSignIn}*/}
+                {/*    disabled={loading}*/}
+                {/*>*/}
+                {/*    {loading ? (*/}
+                {/*        <Spinner />*/}
+                {/*    ) : (*/}
+                {/*        <>*/}
+                {/*            <FaGoogle size={24} className="text-blue-400" />*/}
+                {/*            <p>Sign {type === "signin" ? "in" : "up"} with Google</p>*/}
+                {/*        </>*/}
+                {/*    )}*/}
+                {/*</button>*/}
+                {/*<p>or</p>*/}
                 <div className="w-full flex flex-col items-center justify-center gap-6">
                     <form onSubmit={handleSubmit} className="w-[85%] flex flex-col items-center justify-center gap-5">
-                        <div className="w-full flex flex-col items-center justify-center gap-2.5">
-                            {type === "signup" && <input
-                                ref={nameRef}
-                                required
-                                type="text"
-                                placeholder="Full Name"
-                                className="input-shadow input"
-                                disabled={loading} // ✅ Disable during loading
-                            />}
-                            <input
-                                ref={emailRef}
-                                required
-                                type="email" // ✅ Better validation
-                                placeholder="email@example.com"
-                                className="input-shadow input"
-                                disabled={loading} // ✅ Disable during loading
-                            />
-                            <div className="w-full rounded-xl relative z-50 input-shadow">
+                        <div className="w-full flex flex-col items-center justify-center gap-6">
+                            {type === "signup" && (
+                                <div className="w-full flex flex-col">
+                                    <label htmlFor="name" className="text-lg font-medium text-blue-500 pl-2">Full Name</label>
+                                    <input
+                                        id="name"
+                                        ref={nameRef}
+                                        required
+                                        type="text"
+                                        placeholder="Full Name"
+                                        className="input-shadow input"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            )}
+                            <div className="w-full flex flex-col">
+                                <label htmlFor="email" className="text-lg font-medium text-blue-500 pl-2">Email</label>
                                 <input
-                                    ref={passRef}
+                                    id="email"
+                                    ref={emailRef}
                                     required
-                                    placeholder="••••••••"
-                                    type={show ? "text" : "password"}
-                                    className="input"
-                                    disabled={loading} // ✅ Disable during loading
+                                    type="email"
+                                    placeholder="email@example.com"
+                                    className="input-shadow input"
+                                    disabled={loading}
                                 />
+                            </div>
+                            <div className="w-full relative z-50">
+                                <div className="w-full flex flex-col">
+                                    <label htmlFor="password" className="text-lg font-medium text-blue-500 pl-2">Password</label>
+                                    <input
+                                        id="password"
+                                        ref={passRef}
+                                        required
+                                        placeholder="••••••••"
+                                        type={show ? "text" : "password"}
+                                        className="input input-shadow rounded-xl"
+                                        disabled={loading}
+                                        onChange={handlePasswordChange}
+                                    />
+                                </div>
                                 {show ? (
                                     <FaRegEyeSlash
                                         onClick={handleShow}
@@ -178,11 +265,29 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
                                     />
                                 )}
                             </div>
+
+                            {type === "signup" && showValidation && (
+                                <div className="w-full">
+                                    <div className="space-y-2">
+                                        {validationRules.map((rule) => (
+                                            <ValidationItem
+                                                key={rule.key}
+                                                isValid={passwordValidation[rule.key as keyof PasswordValidation]}
+                                                text={rule.text}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <button
                             type="submit"
-                            className="cta-btn w-full cursor-pointer text-lg font-medium"
-                            disabled={loading} // ✅ Disable during loading
+                            className={cn(
+                                "cta-btn rounded-xl w-full cursor-pointer text-lg font-medium",
+                                type === "signup" && showValidation && !isPasswordValid(passwordValidation) &&
+                                "opacity-50 cursor-not-allowed"
+                            )}
+                            disabled={loading || (type === "signup" && showValidation && !isPasswordValid(passwordValidation))}
                         >
                             {loading ? <Spinner /> : type === "signup" ? "Sign Up" : "Sign In"}
                         </button>

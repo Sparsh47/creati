@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-
         const {prompt, nodes, edges} = body;
 
         if (!prompt || !nodes || !edges) {
@@ -34,18 +33,41 @@ export async function POST(req: NextRequest) {
                 headers: {
                     'Authorization': `Bearer ${session.user.accessToken}`,
                     'Content-Type': 'application/json'
+                },
+                validateStatus: function (status) {
+                    return status < 500;
                 }
             }
         );
 
-        return NextResponse.json(response.data);
-    } catch (error: any) {
-        console.error('Error creating design:', error);
+        if (response.status === 429) {
+            return NextResponse.json(
+                {
+                    error: 'Rate limit exceeded',
+                    message: 'You have reached your creation limit. Please try again later.',
+                    retryAfter: response.headers['retry-after'] || null
+                },
+                { status: 429 }
+            );
+        }
 
+        if (response.status >= 400 && response.status < 500) {
+            return NextResponse.json(
+                {
+                    error: response.data?.message || 'Client error',
+                    details: response.data
+                },
+                { status: response.status }
+            );
+        }
+
+        return NextResponse.json(response.data);
+
+    } catch (error: any) {
         if (error.response) {
             return NextResponse.json(
                 {
-                    error: error.response.data?.message || 'Backend error',
+                    error: error.response.data?.message || 'Server error',
                     details: error.response.data
                 },
                 { status: error.response.status }

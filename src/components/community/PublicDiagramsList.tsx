@@ -44,13 +44,13 @@ export default function PublicDiagramsList() {
                         prompt={design.prompt}
                         visibility={design.visibility}
                     />
-            )) : <div className="w-full h-[calc(100vh-200px)] flex flex-col gap-3 items-center justify-center">
+            )) : <div className="w-full h-screen flex flex-col gap-3 items-center justify-center">
                 <div className="rounded-full text-white p-3 bg-blue-500/90"><HiUsers size={40} /></div>
                 <div className="text-center max-w-md">
                     <h3 className="text-3xl font-bold text-blue-500">No public designs yet</h3>
                     <p className="text-gray-800 text-sm">Be the first to share your creativity with the community. Upload your design and inspire others.</p>
                 </div>
-                <Link href="/" className="cta-btn"><LuCirclePlus size={20} /> <span className="font-medium">Create Your Design</span></Link>
+                <Link href="/" className="cta-btn rounded-xl"><LuCirclePlus size={20} /> <span className="font-medium">Create Your Design</span></Link>
             </div>
             }
         </div>

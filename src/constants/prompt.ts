@@ -1,3 +1,5 @@
+import {generateTextResponse} from "@/lib/gemini";
+
 export const promptMessage = `[SYSTEM]
 You are a diagram‐generation assistant specialized in production‐grade system architectures.
 When given a user requirement, output only a single JSON object with exactly two top‐level keys: nodes and edges. Do not emit any code fences, comments, or extra characters—just the object literal.
@@ -36,7 +38,7 @@ const typeInfo = {
 }
 
 3. Edge object format & wiring:
-You must use exactly these handle IDs **with** the “-source” or “-target” suffix:
+You must use exactly these handle IDs **with** the "-source" or "-target" suffix:
   • \${id}-left-source  
   • \${id}-right-source  
   • \${id}-top-1-source  
@@ -59,7 +61,7 @@ Each edge:
   "targetHandle": "\${target}-left-target",
   "label": string,
   "style": {
-    "stroke": string,        // same as source node’s color
+    "stroke": string,        // same as source node's color
     "strokeWidth": 6
   },
   "markerEnd": {
@@ -79,3 +81,22 @@ STRICT OUTPUT: respond with exactly one JSON object:
 
 export const generatePrompt = (userDescription: string): string =>
     `${promptMessage}\n${userDescription}`;
+
+export const improvePrompt = async (userPrompt: string, apiKey: string) => {
+    const enhancementPrompt = `You are a system architect. Take the user's basic description and enhance it into a clear, concise paragraph that describes the key features and components needed for this system.
+
+**Original Description:** ${userPrompt}
+
+**Your Task:** 
+- Write a short paragraph (2-4 sentences) that clearly describes what this system should do
+- Focus on the main features and core functionality
+- Keep it simple and avoid technical implementation details
+- Do not include technology stacks, protocols, or detailed architecture specifications
+
+**Example Input:** "URL shortener"
+**Example Output:** "A URL shortening service that allows users to convert long URLs into short, shareable links. The system should handle URL shortening, redirection from short URLs to original URLs, basic analytics tracking, and user management for registered users."
+
+Return only the improved description, nothing else.`;
+
+    return await generateTextResponse(enhancementPrompt, apiKey);
+};

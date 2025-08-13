@@ -1,12 +1,11 @@
-import PublicDiagramsList from "@/components/community/PublicDiagramsList";
 import Sidebar from "@/components/sections/FlowPage/Sidebar";
+import SubscriptionSection from "@/components/SubscriptionSection";
 
-export default function CommunityPage() {
-
+export default function SubscribePage() {
     return (
         <div className="w-full flex">
             <Sidebar />
-            <PublicDiagramsList />
+            <SubscriptionSection />
         </div>
     )
 }
