@@ -172,7 +172,6 @@ export default function FlowContent() {
                 // allowTaint: true,
             });
 
-            console.log('Screenshot captured with step edges!');
             await uploadScreenshotToBackend(dataUrl);
             return true;
         } catch (error) {

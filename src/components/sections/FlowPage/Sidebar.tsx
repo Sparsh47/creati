@@ -32,7 +32,7 @@ const Sidebar = () => {
             (async ()=>{
                 try {
                     const response = await axios.get(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/get-profile/${session.user.id}`,
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/get-profile`,
                         {
                             headers: {
                                 Authorization: `Bearer ${session.user.accessToken}`,
@@ -47,8 +47,6 @@ const Sidebar = () => {
 
                         setName(userName);
                         setEmail(userEmail);
-                    } else {
-                        console.log("Response not parsed correctly");
                     }
 
                 } catch (error) {

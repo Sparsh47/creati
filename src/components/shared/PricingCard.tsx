@@ -9,13 +9,12 @@ import { loadStripe } from "@stripe/stripe-js";
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export type PricingCardProps = {
-    selected: boolean;
+    selected?: boolean;
     price: string;
     priceId: string;
     duration: 'month' | 'year';
     description: string;
     features: string[];
-    onAction?: () => void;
     highlight?: boolean;
 };
 
@@ -26,7 +25,6 @@ export default function PricingCard({
                                         duration,
                                         description,
                                         features,
-                                        onAction,
                                         highlight = false,
                                     }: PricingCardProps) {
 
@@ -43,7 +41,6 @@ export default function PricingCard({
             setIsLoading(true);
             toast.loading("Processing plan change...");
 
-            // **First, try direct plan change**
             const changeResponse = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/change`,
                 { targetPriceId: priceId },
@@ -54,68 +51,45 @@ export default function PricingCard({
                 }
             );
 
-            if (changeResponse.data.status) {
+            if (changeResponse.data.status && !changeResponse.data.requiresCheckout) {
                 toast.dismiss();
                 toast.success("Plan changed successfully!");
-                if (onAction) onAction();
-                // Optionally refresh the page or update state
                 window.location.reload();
+                return;
+            }
+
+            if (changeResponse.data.status && changeResponse.data.requiresCheckout && changeResponse.data.sessionId) {
+                toast.dismiss();
+                toast.loading("Redirecting to secure payment...");
+
+                const stripe = await stripePromise;
+                if (!stripe) {
+                    toast.dismiss();
+                    toast.error('Stripe failed to load');
+                    return;
+                }
+
+                const { error } = await stripe.redirectToCheckout({
+                    sessionId: changeResponse.data.sessionId
+                });
+
+                if (error) {
+                    toast.dismiss();
+                    toast.error(`Redirect Error: ${error.message}`);
+                }
                 return;
             }
 
         } catch (error: any) {
             toast.dismiss();
 
-            // **If payment method required, redirect to checkout**
-            if (error.response?.data?.error === 'PAYMENT_METHOD_REQUIRED') {
-                toast.loading("Redirecting to secure payment...");
-
-                try {
-                    // Create checkout session for plan change
-                    const checkoutResponse = await axios.post(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/create-plan-checkout`,
-                        { targetPriceId: priceId },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${session?.user.accessToken}`
-                            }
-                        }
-                    );
-
-                    const stripe = await stripePromise;
-                    if (!stripe) {
-                        toast.dismiss();
-                        toast.error('Stripe failed to load');
-                        return;
-                    }
-
-                    // Redirect to checkout
-                    const { error } = await stripe.redirectToCheckout({
-                        sessionId: checkoutResponse.data.sessionId
-                    });
-
-                    if (error) {
-                        toast.dismiss();
-                        toast.error(`Redirect Error: ${error.message}`);
-                    }
-
-                } catch (checkoutError: any) {
-                    toast.dismiss();
-                    toast.error("Failed to create payment session");
-                    console.error("Checkout error:", checkoutError);
-                }
-            } else {
-                // Handle other errors
-                const errorMessage = error.response?.data?.message || "Error changing plan";
-                toast.error(errorMessage);
-                console.error("Plan change error:", error.response?.data);
-            }
+            const errorMessage = error.response?.data?.message || "Error changing plan. Please try again.";
+            toast.error(errorMessage);
+            console.error("Plan change error:", error.response?.data);
         } finally {
             setIsLoading(false);
         }
     }
-
-    console.log("Selected Plan: ", selected, description);
 
     return (
         <div
@@ -123,7 +97,7 @@ export default function PricingCard({
                 'relative flex flex-col justify-between h-full rounded-2xl p-6 backdrop-blur-xl border border-white/20 ring-2 ring-blue-200/30',
                 'bg-white/20',
                 'shadow-lg shadow-blue-500/30',
-                highlight ? 'scale-110' : '',
+                // highlight ? 'scale-110' : '',
                 'transition-transform duration-300'
             )}
         >
@@ -146,7 +120,7 @@ export default function PricingCard({
                 onClick={handleSubscription}
                 className="cursor-pointer mt-4 w-full flex items-center justify-center py-2 rounded-lg font-semibold text-white bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 shadow-md shadow-blue-500/50 transition-transform duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {isLoading ? "Processing..." : (selected ? "Subscribed" : "Subscribe")}
+                {isLoading ? "Processing..." : (selected ? "Current Plan" : "Subscribe")}
             </button>
 
             <ul className="mt-6 space-y-3">

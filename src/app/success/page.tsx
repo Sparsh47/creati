@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
-import { FiCheckCircle, FiDownload, FiArrowLeft } from 'react-icons/fi';
+import { FiCheckCircle, FiDownload, FiArrowLeft, FiLoader } from 'react-icons/fi';
 
 interface PaymentMethodDetails {
     type: string;
@@ -14,15 +14,21 @@ interface PaymentIntent {
     payment_method_details?: PaymentMethodDetails;
 }
 interface Invoice {
-    id:string;
+    id: string;
     invoice_pdf?: string;
     payment_intent?: PaymentIntent;
 }
 interface StripeSessionDetails {
     customer_details?: { name?: string; email?: string; };
-    line_items?: { data: { description: string; }[]; };
+    line_items?: {
+        data: {
+            description: string;
+            price?: { id: string };
+        }[];
+    };
     amount_total?: number;
     subscription?: { id: string; };
+    customer?: string;
     created: number;
     invoice?: Invoice;
 }
@@ -31,46 +37,148 @@ const SuccessPage: React.FC = () => {
     const [sessionDetails, setSessionDetails] = useState<StripeSessionDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [subscriptionUpdated, setSubscriptionUpdated] = useState(false);
+    const [updatingDatabase, setUpdatingDatabase] = useState(false);
     const { data: session } = useSession();
 
     useEffect(() => {
         if (!session) return;
+
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
+
         if (!sessionId) {
             setError('Missing checkout session ID.');
             setLoading(false);
             return;
         }
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/retrieve-session?session_id=${sessionId}`, {
-            headers: { Authorization: `Bearer ${session?.user.accessToken}` }
-        })
-            .then(res => res.ok ? res.json() : Promise.reject(new Error(`Server responded with status: ${res.status}`)))
-            .then(data => {
-                if (!data.session) throw new Error('Session data missing in response.');
-                setSessionDetails(data.session);
-                console.log("Payment Intent: ", data.paymentIntent);
-            })
-            .catch(err => setError(err.message))
-            .finally(() => setLoading(false));
+
+        processCheckoutSuccess(sessionId);
     }, [session]);
+
+    const processCheckoutSuccess = async (sessionId: string) => {
+        try {
+            const sessionResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/retrieve-session?session_id=${sessionId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${session?.user.accessToken}`
+                    }
+                }
+            );
+
+            if (!sessionResponse.ok) {
+                throw new Error(`Server responded with status: ${sessionResponse.status}`);
+            }
+
+            const data = await sessionResponse.json();
+
+            if (!data.session) {
+                throw new Error('Session data missing in response.');
+            }
+
+            setSessionDetails(data.session);
+
+            if (data.session.subscription && data.session.line_items?.data[0]?.price?.id) {
+                await updateSubscriptionInDatabase(data.session);
+            } else {
+                console.warn('Missing subscription or price data, skipping database update');
+            }
+
+        } catch (err: any) {
+            console.error('Error processing checkout:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateSubscriptionInDatabase = async (sessionData: StripeSessionDetails) => {
+        try {
+            setUpdatingDatabase(true);
+
+            const subscriptionId = sessionData.subscription?.id;
+            const customerId = sessionData.customer;
+            const priceId = sessionData.line_items?.data[0]?.price?.id;
+
+            if (!subscriptionId || !priceId) {
+                console.warn('Missing subscription or price ID, skipping database update');
+                return;
+            }
+
+            const updateResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/complete-checkout`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${session?.user.accessToken}`
+                    },
+                    body: JSON.stringify({
+                        stripeSubscriptionId: subscriptionId,
+                        stripeCustomerId: customerId,
+                        stripePriceId: priceId
+                    })
+                }
+            );
+
+            if (!updateResponse.ok) {
+                const errorData = await updateResponse.json();
+                throw new Error(errorData.error || 'Failed to update subscription in database');
+            }
+
+            const result = await updateResponse.json();
+            setSubscriptionUpdated(true);
+
+        } catch (error: any) {
+            console.error('Error updating subscription in database:', error);
+            setError(`Database update failed: ${error.message}`);
+        } finally {
+            setUpdatingDatabase(false);
+        }
+    };
 
     const renderDetailRow = (label: string, value: React.ReactNode) => (
         <div className="flex justify-between items-start py-3 border-b border-blue-200/50">
             <span className="text-gray-600 whitespace-nowrap">{label}</span>
-            <div className="font-medium text-blue-900 break-words text-right ml-4">{value || 'N/A'}</div>
+            <div className="font-medium text-blue-900 break-words text-right ml-4">
+                {value || 'N/A'}
+            </div>
         </div>
     );
 
     if (loading) {
-        return <div className="min-h-screen w-full flex items-center justify-center bg-blue-50 text-blue-800"><p>Verifying your payment details...</p></div>;
+        return (
+            <div className="min-h-screen w-full flex flex-col items-center justify-center bg-blue-50 text-blue-800">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <p>Verifying your payment details...</p>
+                {updatingDatabase && (
+                    <p className="text-sm text-gray-600 mt-2">Updating your subscription...</p>
+                )}
+            </div>
+        );
     }
 
     if (error) {
         return (
             <div className="min-h-screen w-full flex flex-col items-center justify-center bg-blue-50 p-4">
-                <p className="text-red-500 text-lg text-center">{error}</p>
-                <Link href="/" className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">Go to Homepage</Link>
+                <div className="text-center">
+                    <p className="text-red-500 text-lg mb-4">{error}</p>
+                    <div className="space-y-2">
+                        <Link
+                            href="/subscription"
+                            className="inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors mr-2"
+                        >
+                            Back to Pricing
+                        </Link>
+                        <Link
+                            href="/flow"
+                            className="inline-block px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                        >
+                            Go to Dashboard
+                        </Link>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -80,33 +188,74 @@ const SuccessPage: React.FC = () => {
             <div className="w-full max-w-2xl bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-lg text-gray-800 overflow-hidden">
                 <div className="p-8 md:p-12">
                     <div className="text-center">
-                        <FiCheckCircle className="w-16 h-16 mx-auto text-blue-500" />
-                        <h1 className="text-3xl md:text-4xl font-bold mt-4 text-blue-900">Payment Successful</h1>
+                        <FiCheckCircle className="w-16 h-16 mx-auto text-green-500" />
+                        <h1 className="text-3xl md:text-4xl font-bold mt-4 text-blue-900">
+                            Payment Successful
+                        </h1>
                         <p className="text-gray-600 mt-2">
-                            Thank you, {sessionDetails?.customer_details?.name || 'Customer'}. Your subscription is active.
+                            Thank you, {sessionDetails?.customer_details?.name || 'Customer'}.
+                            Your subscription is now active.
                         </p>
+
+                        {updatingDatabase && (
+                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-center">
+                                <FiLoader className="animate-spin mr-2 text-blue-600" />
+                                <p className="text-blue-700 text-sm">
+                                    Finalizing your subscription...
+                                </p>
+                            </div>
+                        )}
+
+                        {subscriptionUpdated && !updatingDatabase && (
+                            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <p className="text-green-700 text-sm flex items-center justify-center">
+                                    <FiCheckCircle className="mr-2" />
+                                    Your account has been updated with the new subscription plan!
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="my-8 md:my-10 space-y-2 text-sm">
-                        <h2 className="text-lg font-semibold text-blue-800 mb-4 pb-2 border-b border-blue-200/50">Subscription Summary</h2>
+                        <h2 className="text-lg font-semibold text-blue-800 mb-4 pb-2 border-b border-blue-200/50">
+                            Subscription Summary
+                        </h2>
                         {renderDetailRow("Customer Name", sessionDetails?.customer_details?.name)}
                         {renderDetailRow("Email", sessionDetails?.customer_details?.email)}
                         {renderDetailRow("Plan", sessionDetails?.line_items?.data[0]?.description)}
-                        {renderDetailRow("Amount Paid", sessionDetails?.amount_total ? `$${(sessionDetails.amount_total / 100).toFixed(2)}` : 'N/A')}
-                        {renderDetailRow("Payment Date", sessionDetails?.created ? new Date(sessionDetails.created * 1000).toLocaleDateString() : 'N/A')}
+                        {renderDetailRow(
+                            "Amount Paid",
+                            sessionDetails?.amount_total
+                                ? `$${(sessionDetails.amount_total / 100).toFixed(2)}`
+                                : 'N/A'
+                        )}
+                        {renderDetailRow(
+                            "Payment Date",
+                            sessionDetails?.created
+                                ? new Date(sessionDetails.created * 1000).toLocaleDateString()
+                                : 'N/A'
+                        )}
                         {renderDetailRow("Subscription ID", sessionDetails?.subscription?.id)}
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 mt-8">
                         {sessionDetails?.invoice?.invoice_pdf && (
-                            <a href={sessionDetails.invoice.invoice_pdf} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors">
+                            <a
+                                href={sessionDetails.invoice.invoice_pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors"
+                            >
                                 <FiDownload className="w-5 h-5" />
                                 Download Receipt
                             </a>
                         )}
-                        <Link href="/" className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-semibold transition-colors">
+                        <Link
+                            href="/flow"
+                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors"
+                        >
                             <FiArrowLeft className="w-5 h-5" />
-                            Go Back
+                            Go to Dashboard
                         </Link>
                     </div>
                 </div>

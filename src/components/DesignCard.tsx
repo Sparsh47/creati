@@ -8,7 +8,6 @@ import {DesignCardType} from "@/types/designs";
 import {toast} from "react-hot-toast";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useMemo} from "react";
 import Image from "next/image";
 
 export default function DesignCard({prompt, visibility, id, images, createdAt}: DesignCardType) {

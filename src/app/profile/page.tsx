@@ -9,6 +9,8 @@ import axios from "axios";
 import {toast} from "react-hot-toast";
 import Spinner from "@/components/shared/Spinner";
 import Sidebar from "@/components/sections/FlowPage/Sidebar";
+import Link from "next/link";
+import {pricingPlans} from "@/components/SubscriptionSection";
 
 export default function ProfilePage() {
 
@@ -18,10 +20,11 @@ export default function ProfilePage() {
     const [name, setName] = useState("");
     const [initialName, setInitialName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [planName, setPlanName] = useState("");
+    const [planName, setPlanName] = useState("FREE");
     const [activeSubs, setActiveSubs] = useState(0);
     const [designCount, setDesignCount] = useState(0);
     const [maxDesigns, setMaxDesigns] = useState(3);
+    const [currPlanId, setCurrPlanId] = useState("");
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -30,15 +33,13 @@ export default function ProfilePage() {
             (async ()=>{
                 try {
                     const response = await axios.get(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/get-profile/${session.user.id}`,
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/get-profile`,
                         {
                             headers: {
                                 Authorization: `Bearer ${session.user.accessToken}`,
                             }
                         }
                     );
-
-                    console.log("Response: ", response);
 
                     if (response.data.status) {
                         const user = response.data?.data || {};
@@ -47,6 +48,10 @@ export default function ProfilePage() {
                         const userPlan = user.plan.planType;
                         const designs = user.designs || [];
                         const designsAllowed = user.maxDesigns || 3;
+
+                        if(user.plan.stripePriceId) {
+                            setCurrPlanId(user.plan.stripePriceId);
+                        }
 
                         if((userPlan as string).toLowerCase().includes("free")) {
                             setActiveSubs(0);
@@ -60,8 +65,6 @@ export default function ProfilePage() {
                         setInitialName(userName);
                         setName(userName);
                         setEmail(userEmail);
-                    } else {
-                        console.log("Response not parsed correctly");
                     }
 
                 } catch (error) {
@@ -75,28 +78,51 @@ export default function ProfilePage() {
     const hasNameChanged = name !== initialName;
 
     const handleNameChange = async () => {
-        setLoading(true);
-        const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-profile/${session?.user.id}`, {
-            name
-        },{
-            headers: {
-                Authorization: `Bearer ${session?.user?.accessToken}`
-            }
-        });
+        try {
+            setLoading(true);
+            const response = await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/update-profile`, {
+                name
+            },{
+                headers: {
+                    Authorization: `Bearer ${session?.user?.accessToken}`
+                }
+            });
 
-        if(response.data.status==true) {
-            setName(response.data.data.name);
-            setInitialName(response.data.data.name);
-            toast.success("Profile updated successfully.");
-            setLoading(false);
-        } else {
-            toast.error("Could not update profile");
-            setLoading(false);
+            if(response.data.status==true) {
+                setName(response.data.data.name);
+                setInitialName(response.data.data.name);
+                toast.dismiss();
+                toast.success("Profile updated successfully.");
+                setLoading(false);
+            } else {
+                toast.dismiss();
+                toast.error("Could not update profile");
+                setLoading(false);
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Error updating profile");
+            return;
+        }
+    }
+
+    const handleCancelPlan = async () => {
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/cancel-plan`, {priceId: currPlanId}, {
+                headers: {
+                    Authorization: `Bearer ${session?.user?.accessToken}`
+                }
+            });
+
+            console.log(response);
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Error cancelling plan. Try again later.");
         }
     }
 
     if (status === "loading") {
-        return <div className="w-full h-screen flex items-center justify-center"><p>Loading...</p></div>;
+        return <div className="w-full h-screen flex items-center justify-center"><Spinner /></div>;
     }
 
     return (
@@ -152,9 +178,16 @@ export default function ProfilePage() {
                                             <h3 className="text-lg font-semibold text-blue-600">{planName}</h3>
                                             <p className="text-blue-500/80 text-sm">{activeSubs === 0 ? "No active subscription" : "1 active subscription"}</p>
                                         </div>
-                                        <button className="cursor-pointer px-5 py-2 border border-blue-500 rounded-lg text-blue-600 hover:bg-blue-100 transition-colors duration-200 text-sm font-medium whitespace-nowrap">
-                                            Manage Plan
-                                        </button>
+                                        <div className="flex items-center justify-center gap-3">
+                                            <Link href="/subscription" className="cursor-pointer px-5 py-2 border border-blue-500 rounded-lg text-blue-600 hover:bg-blue-100 transition-colors duration-200 text-sm font-medium whitespace-nowrap">
+                                                Manage Plan
+                                            </Link>
+                                            {planName !== "FREE" && <button
+                                                onClick={handleCancelPlan}
+                                                className="cursor-pointer px-5 py-2 border border-red-500 rounded-lg text-red-600 hover:bg-red-100 transition-colors duration-200 text-sm font-medium whitespace-nowrap">
+                                                Cancel Plan
+                                            </button>}
+                                        </div>
                                     </div>
                                 </div>
 

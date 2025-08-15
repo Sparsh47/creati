@@ -26,27 +26,27 @@ export type Plan = {
 };
 
 export const pricingPlans: Plan[] = [
-    {
-        id: 'FREE',
-        title: 'Starter',
-        price: {
-            priceId: {
-                monthly: "price_1Rv04OSsg21IEsaK7P0UvyZV",
-                yearly: "price_1Rv04OSsg21IEsaK7P0UvyZV"
-            },
-            monthly: '0',
-            yearly: '0'
-        },
-        description: 'Free Plan',
-        features: [
-            '3 private designs',
-            '2-user collaboration',
-            'Auto-save & versions',
-            'Basic templates',
-            '5 exports/mo',
-            'Mobile-responsive UI',
-        ],
-    },
+    // {
+    //     id: 'FREE',
+    //     title: 'Starter',
+    //     price: {
+    //         priceId: {
+    //             monthly: "price_1Rv04OSsg21IEsaK7P0UvyZV",
+    //             yearly: "price_1Rv04OSsg21IEsaK7P0UvyZV"
+    //         },
+    //         monthly: '0',
+    //         yearly: '0'
+    //     },
+    //     description: 'Free Plan',
+    //     features: [
+    //         '3 private designs',
+    //         '2-user collaboration',
+    //         'Auto-save & versions',
+    //         'Basic templates',
+    //         '5 exports/mo',
+    //         'Mobile-responsive UI',
+    //     ],
+    // },
     {
         id: 'PLUS',
         title: 'Plus',
@@ -100,18 +100,18 @@ export default function SubscriptionSection() {
 
     useEffect(() => {
         (async () => {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile/get-user-plan`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/current-plan`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.accessToken}`
                 }
             });
 
             if(response.data.status) {
-                const plan = response.data.data.plan.planType
+                const plan = response.data.data.currentPlan
                 if(plan === "FREE") {
                     setPlanName("FREE");
-                } else if(plan === "PRO") {
-                    setPlanName("FREE")
+                } else if(plan === "PLUS") {
+                    setPlanName("PLUS")
                 } else {
                     setPlanName("PRO_PLUS")
                 }
@@ -129,7 +129,7 @@ export default function SubscriptionSection() {
             />
             <div className="w-full max-w-5xl p-5 flex flex-col items-center justify-center gap-14">
                 <ToggleButton onToggle={setBillingPeriod} />
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-8">
+                <div className="w-[70%] grid grid-cols-1 sm:grid-cols-2 auto-rows-fr gap-8">
                     {pricingPlans.map((plan) => {
                         const displayPrice =
                             billingPeriod === 'monthly' ? plan.price.monthly : plan.price.yearly;
@@ -146,9 +146,6 @@ export default function SubscriptionSection() {
                                 description={plan.description}
                                 features={plan.features}
                                 highlight={plan.highlight}
-                                onAction={() =>
-                                    console.log(`${plan.title} (${billingPeriod}) plan selected`)
-                                }
                             />
                         );
                     })}

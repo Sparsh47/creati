@@ -125,9 +125,6 @@ export default function Pricing() {
                                 description={plan.description}
                                 features={plan.features}
                                 highlight={plan.highlight}
-                                onAction={() =>
-                                    console.log(`${plan.title} (${billingPeriod}) plan selected`)
-                                }
                             />
                         );
                     })}
