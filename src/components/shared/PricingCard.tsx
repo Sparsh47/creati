@@ -31,6 +31,8 @@ export default function PricingCard({
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(false);
 
+    console.log(description, priceId, duration);
+
     const handleSubscription = async () => {
         try {
             if (status === "unauthenticated") {

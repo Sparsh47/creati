@@ -62,7 +62,7 @@ export const pricingPlans: Plan[] = [
         highlight: true,
         features: [
             'Everything in Starter',
-            '20 private designs',
+            '20 architecture designs',
             '5-user collaboration',
             '10 versions/design',
             'Full templates',
@@ -83,7 +83,7 @@ export const pricingPlans: Plan[] = [
         description: 'Pro Plus Plan',
         features: [
             'Everything in Plus',
-            'Unlimited private designs',
+            'Unlimited architecture designs',
             'Unlimited users',
             'Unlimited versions',
             'Premium templates',
@@ -96,7 +96,10 @@ export default function SubscriptionSection() {
     const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
     const {data: session, status} = useSession();
     const router = useRouter();
-    const [planName, setPlanName] = useState("");
+    const [planDetails, setPlanDetails] = useState({
+        name: "",
+        billingCycle: ""
+    });
 
     useEffect(() => {
         (async () => {
@@ -107,14 +110,11 @@ export default function SubscriptionSection() {
             });
 
             if(response.data.status) {
-                const plan = response.data.data.currentPlan
-                if(plan === "FREE") {
-                    setPlanName("FREE");
-                } else if(plan === "PLUS") {
-                    setPlanName("PLUS")
-                } else {
-                    setPlanName("PRO_PLUS")
-                }
+                const plan = response.data.data
+                setPlanDetails({
+                    name: plan.currentPlan,
+                    billingCycle: plan.billingCycle,
+                });
             } else {
                 toast.error("Failed to get user plan details");
             }
@@ -139,7 +139,7 @@ export default function SubscriptionSection() {
                         return (
                             <PricingCard
                                 key={plan.id}
-                                selected={plan.id === planName}
+                                selected={(plan.id === planDetails.name && billingPeriod === planDetails.billingCycle)}
                                 priceId={pricingId}
                                 price={displayPrice}
                                 duration={displayDuration}

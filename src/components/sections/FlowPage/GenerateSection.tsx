@@ -1,36 +1,19 @@
 "use client";
 
-import React from "react";
+import React, {useEffect} from "react";
 import {useDesignResponse} from "@/context/DesignResponseContext";
 import GenerateDesignSearch from "@/components/sections/FlowPage/GenerateDesignSearch";
 import {TypewriterEffectSmooth} from "@/components/ui/typewriter-effect";
+import {usePathname} from "next/navigation";
 
 export default function Hero() {
 
     const {userPrompt, setUserPrompt} = useDesignResponse();
+    const pathname = usePathname();
 
-    const words = [
-        {
-            text: "What",
-            className: "text-blue-500",
-        },
-        {
-            text: "will",
-            className: "text-blue-500",
-        },
-        {
-            text: "you",
-            className: "text-blue-500",
-        },
-        {
-            text: "generate",
-            className: "text-blue-500",
-        },
-        {
-            text: "next?",
-            className: "text-blue-500",
-        },
-    ];
+    useEffect(() => {
+
+    }, [pathname]);
 
     return (<div
         className="relative w-full h-screen flex items-center justify-center flex-col gap-10 bg-white overflow-hidden">
@@ -44,7 +27,7 @@ export default function Hero() {
         />
 
         <div className="relative z-10 flex flex-col items-center gap-5 px-4 w-full max-w-5xl">
-            <TypewriterEffectSmooth words={words} />
+            <h1 className="text-6xl font-semibold text-blue-500 mb-5">What will you generate next?</h1>
 
             <div className="w-full flex flex-col items-center justify-center">
                 <GenerateDesignSearch

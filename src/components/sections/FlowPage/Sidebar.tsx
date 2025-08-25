@@ -87,7 +87,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="h-screen w-[300px] bg-white/30 backdrop-blur-md border-r border-blue-100">
+        <div className="h-screen w-[300px] bg-white/30 backdrop-blur-md border-r border-blue-100 relative z-50">
 
             <div className="relative z-10 flex flex-col h-full">
                 <div className="p-6 border-b border-blue-100">

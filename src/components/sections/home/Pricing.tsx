@@ -24,28 +24,28 @@ export type Plan = {
 };
 
 export const pricingPlans: Plan[] = [
-    {
-        id: 'starter',
-        title: 'Starter',
-        price: {
-            priceId: {
-                monthly: "price_1RsK2JSsg21IEsaK7V0VcxZX",
-                yearly: "price_1RsK2tSsg21IEsaK5e0JJOZJ"
-            },
-            monthly: '0',
-            yearly: '0'
-        },
-        duration: 'month',
-        description: 'Free Plan',
-        features: [
-            '3 private designs',
-            '2-user collaboration',
-            'Auto-save & versions',
-            'Basic templates',
-            '5 exports/mo',
-            'Mobile-responsive UI',
-        ],
-    },
+    // {
+    //     id: 'starter',
+    //     title: 'Starter',
+    //     price: {
+    //         priceId: {
+    //             monthly: "price_1RsK2JSsg21IEsaK7V0VcxZX",
+    //             yearly: "price_1RsK2tSsg21IEsaK5e0JJOZJ"
+    //         },
+    //         monthly: '0',
+    //         yearly: '0'
+    //     },
+    //     duration: 'month',
+    //     description: 'Free Plan',
+    //     features: [
+    //         '3 architecture designs',
+    //         '2-user collaboration',
+    //         'Auto-save & versions',
+    //         'Basic templates',
+    //         '5 exports/mo',
+    //         'Mobile-responsive UI',
+    //     ],
+    // },
     {
         id: 'professional',
         title: 'Professional',
@@ -62,11 +62,11 @@ export const pricingPlans: Plan[] = [
         highlight: true,
         features: [
             'Everything in Starter',
+            '20 architecture designs',
             '5-user collaboration',
             '10 versions/design',
             'Full templates',
             'Unlimited exports',
-            'Mobile-responsive UI',
         ],
     },
     {
@@ -83,12 +83,12 @@ export const pricingPlans: Plan[] = [
         duration: 'month',
         description: 'Enterprise Plan',
         features: [
-            'Everything in Professional',
+            'Everything in Plus',
+            'Unlimited architecture designs',
             'Unlimited users',
             'Unlimited versions',
             'Premium templates',
             'All-format exports',
-            'Mobile-responsive UI',
         ],
     },
 ];

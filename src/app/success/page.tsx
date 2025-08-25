@@ -9,15 +9,18 @@ interface PaymentMethodDetails {
     type: string;
     card?: { brand: string; last4: string; }
 }
+
 interface PaymentIntent {
     id: string;
     payment_method_details?: PaymentMethodDetails;
 }
+
 interface Invoice {
     id: string;
     invoice_pdf?: string;
     payment_intent?: PaymentIntent;
 }
+
 interface StripeSessionDetails {
     customer_details?: { name?: string; email?: string; };
     line_items?: {
@@ -39,10 +42,11 @@ const SuccessPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [subscriptionUpdated, setSubscriptionUpdated] = useState(false);
     const [updatingDatabase, setUpdatingDatabase] = useState(false);
+    const [hasProcessed, setHasProcessed] = useState(false);
     const { data: session } = useSession();
 
     useEffect(() => {
-        if (!session) return;
+        if (!session?.user?.accessToken || hasProcessed) return;
 
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
@@ -53,8 +57,32 @@ const SuccessPage: React.FC = () => {
             return;
         }
 
+        // ✅ Prevent duplicate processing
+        const processedKey = `checkout_processed_${sessionId}`;
+        if (sessionStorage.getItem(processedKey)) {
+            console.log('Checkout already processed for this session');
+            setHasProcessed(true);
+            setLoading(false);
+
+            // Check if we have cached session details
+            const cachedDetails = sessionStorage.getItem(`session_details_${sessionId}`);
+            if (cachedDetails) {
+                try {
+                    setSessionDetails(JSON.parse(cachedDetails));
+                    setSubscriptionUpdated(true);
+                } catch (e) {
+                    console.error('Error parsing cached session details:', e);
+                }
+            }
+            return;
+        }
+
+        // ✅ Mark as processed BEFORE making API calls
+        sessionStorage.setItem(processedKey, 'true');
+        setHasProcessed(true);
+
         processCheckoutSuccess(sessionId);
-    }, [session]);
+    }, [session?.user?.accessToken, hasProcessed]);
 
     const processCheckoutSuccess = async (sessionId: string) => {
         try {
@@ -79,15 +107,27 @@ const SuccessPage: React.FC = () => {
 
             setSessionDetails(data.session);
 
+            // ✅ Cache session details
+            sessionStorage.setItem(`session_details_${sessionId}`, JSON.stringify(data.session));
+
             if (data.session.subscription && data.session.line_items?.data[0]?.price?.id) {
                 await updateSubscriptionInDatabase(data.session);
             } else {
-                console.warn('Missing subscription or price data, skipping database update');
+                console.warn('Missing subscription or price data, but showing success');
+                setSubscriptionUpdated(true);
             }
 
         } catch (err: any) {
             console.error('Error processing checkout:', err);
             setError(err.message);
+
+            // ✅ Remove processed flag on error so user can retry
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            if (sessionId) {
+                sessionStorage.removeItem(`checkout_processed_${sessionId}`);
+                setHasProcessed(false);
+            }
         } finally {
             setLoading(false);
         }
@@ -103,6 +143,7 @@ const SuccessPage: React.FC = () => {
 
             if (!subscriptionId || !priceId) {
                 console.warn('Missing subscription or price ID, skipping database update');
+                setSubscriptionUpdated(true);
                 return;
             }
 
@@ -124,19 +165,57 @@ const SuccessPage: React.FC = () => {
 
             if (!updateResponse.ok) {
                 const errorData = await updateResponse.json();
+
+                // ✅ Handle "already completed" as success, not error
+                if (errorData.message?.includes('already completed') ||
+                    errorData.message?.includes('already exists') ||
+                    errorData.error?.includes('already completed') ||
+                    errorData.error?.includes('already exists')) {
+                    console.log('Checkout already completed, showing success');
+                    setSubscriptionUpdated(true);
+                    return;
+                }
+
                 throw new Error(errorData.error || 'Failed to update subscription in database');
             }
 
             const result = await updateResponse.json();
             setSubscriptionUpdated(true);
+            console.log('Database update successful:', result);
 
         } catch (error: any) {
             console.error('Error updating subscription in database:', error);
+
+            // ✅ Don't show error for duplicate completions
+            if (error.message?.includes('already completed') ||
+                error.message?.includes('already exists')) {
+                setSubscriptionUpdated(true);
+                return;
+            }
+
             setError(`Database update failed: ${error.message}`);
         } finally {
             setUpdatingDatabase(false);
         }
     };
+
+    // ✅ Clean up session storage after some time
+    useEffect(() => {
+        const cleanup = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            if (sessionId) {
+                // Clean up after 5 minutes
+                setTimeout(() => {
+                    sessionStorage.removeItem(`checkout_processed_${sessionId}`);
+                    sessionStorage.removeItem(`session_details_${sessionId}`);
+                }, 5 * 60 * 1000);
+            }
+        };
+
+        cleanup();
+        return cleanup;
+    }, []);
 
     const renderDetailRow = (label: string, value: React.ReactNode) => (
         <div className="flex justify-between items-start py-3 border-b border-blue-200/50">
@@ -165,15 +244,31 @@ const SuccessPage: React.FC = () => {
                 <div className="text-center">
                     <p className="text-red-500 text-lg mb-4">{error}</p>
                     <div className="space-y-2">
+                        <button
+                            onClick={() => {
+                                // ✅ Allow retry by clearing flags
+                                const urlParams = new URLSearchParams(window.location.search);
+                                const sessionId = urlParams.get('session_id');
+                                if (sessionId) {
+                                    sessionStorage.removeItem(`checkout_processed_${sessionId}`);
+                                }
+                                setHasProcessed(false);
+                                setError(null);
+                                setLoading(true);
+                            }}
+                            className="inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors mr-2"
+                        >
+                            Retry
+                        </button>
                         <Link
                             href="/subscription"
-                            className="inline-block px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors mr-2"
+                            className="inline-block px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors mr-2"
                         >
                             Back to Pricing
                         </Link>
                         <Link
                             href="/flow"
-                            className="inline-block px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                            className="inline-block px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
                         >
                             Go to Dashboard
                         </Link>
@@ -216,27 +311,29 @@ const SuccessPage: React.FC = () => {
                         )}
                     </div>
 
-                    <div className="my-8 md:my-10 space-y-2 text-sm">
-                        <h2 className="text-lg font-semibold text-blue-800 mb-4 pb-2 border-b border-blue-200/50">
-                            Subscription Summary
-                        </h2>
-                        {renderDetailRow("Customer Name", sessionDetails?.customer_details?.name)}
-                        {renderDetailRow("Email", sessionDetails?.customer_details?.email)}
-                        {renderDetailRow("Plan", sessionDetails?.line_items?.data[0]?.description)}
-                        {renderDetailRow(
-                            "Amount Paid",
-                            sessionDetails?.amount_total
-                                ? `$${(sessionDetails.amount_total / 100).toFixed(2)}`
-                                : 'N/A'
-                        )}
-                        {renderDetailRow(
-                            "Payment Date",
-                            sessionDetails?.created
-                                ? new Date(sessionDetails.created * 1000).toLocaleDateString()
-                                : 'N/A'
-                        )}
-                        {renderDetailRow("Subscription ID", sessionDetails?.subscription?.id)}
-                    </div>
+                    {sessionDetails && (
+                        <div className="my-8 md:my-10 space-y-2 text-sm">
+                            <h2 className="text-lg font-semibold text-blue-800 mb-4 pb-2 border-b border-blue-200/50">
+                                Subscription Summary
+                            </h2>
+                            {renderDetailRow("Customer Name", sessionDetails?.customer_details?.name)}
+                            {renderDetailRow("Email", sessionDetails?.customer_details?.email)}
+                            {renderDetailRow("Plan", sessionDetails?.line_items?.data[0]?.description)}
+                            {renderDetailRow(
+                                "Amount Paid",
+                                sessionDetails?.amount_total
+                                    ? `$${(sessionDetails.amount_total / 100).toFixed(2)}`
+                                    : 'N/A'
+                            )}
+                            {renderDetailRow(
+                                "Payment Date",
+                                sessionDetails?.created
+                                    ? new Date(sessionDetails.created * 1000).toLocaleDateString()
+                                    : 'N/A'
+                            )}
+                            {renderDetailRow("Subscription ID", sessionDetails?.subscription?.id)}
+                        </div>
+                    )}
 
                     <div className="flex flex-col sm:flex-row gap-4 mt-8">
                         {sessionDetails?.invoice?.invoice_pdf && (

@@ -98,14 +98,14 @@ export default function GenerateDesignSearch({
             const designId = designResponse.data.design.id;
             setLoaderValue(100);
 
-            const parsedNodes = response.nodes as FlowNode[];
-            const parsedEdges: Edge[] = (response.edges ?? []).map((e: any) => ({
-                ...e,
-                label: e.label ?? "→",
-            }));
-
-            setNodes(parsedNodes);
-            setEdges(parsedEdges);
+            // const parsedNodes = response.nodes as FlowNode[];
+            // const parsedEdges: Edge[] = (response.edges ?? []).map((e: any) => ({
+            //     ...e,
+            //     label: e.label ?? "→",
+            // }));
+            //
+            // setNodes(parsedNodes);
+            // setEdges(parsedEdges);
 
             router.push(`/flow/${designId}`);
             clearSearch();
