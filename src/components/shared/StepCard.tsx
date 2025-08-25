@@ -1,4 +1,4 @@
-import {StepInfoType} from "@/components/sections/hero/Steps";
+import {StepInfoType} from "@/components/sections/home/Steps";
 
 const ICON_SIZE = 18
 

@@ -314,7 +314,7 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
                 <div className="text-base">
                     {type === "signin" ? (
                         <p>
-                            Don't have an account?{" "}
+                            Don&apos;t have an account?{" "}
                             <Link
                                 className="text-blue-600 hover:text-blue-500"
                                 href={{

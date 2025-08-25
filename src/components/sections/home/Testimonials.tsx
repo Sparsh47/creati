@@ -59,7 +59,7 @@ const CARDS = [
         designation: "Technical Lead",
         content: (
             <p>
-                The multi-language support is a lifesaver when collaborating with international teams. It's simple to use and saves a lot of time. Fantastic feature!
+                The multi-language support is a lifesaver when collaborating with international teams. It&apos;s simple to use and saves a lot of time. Fantastic feature!
             </p>
         ),
     },

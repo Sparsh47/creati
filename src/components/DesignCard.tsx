@@ -3,7 +3,6 @@
 import { MdEdit, MdDelete, MdContentCopy } from "react-icons/md";
 import { FaLock, FaLockOpen, FaRegTrashAlt, FaCheckCircle } from "react-icons/fa";
 import { GoKebabHorizontal } from "react-icons/go";
-import { IoMdSettings } from "react-icons/io";
 import { FiCopy } from "react-icons/fi";
 import { DesignCardType } from "@/types/designs";
 import { toast } from "react-hot-toast";
@@ -155,7 +154,6 @@ export default function DesignCard({
         <div className="w-[350px] height-[350px] rounded-xl border border-blue-200 shadow-xl shadow-blue-500/30 p-3 flex flex-col gap-3.5"
         >
             <Link href={`/flow/${id}`} className="w-full h-[200px] bg-blue-100 rounded-lg relative">
-                {/*@ts-ignore*/}
                 <Image src={images[images.length-1].url}
                     alt={prompt}
                     width={800}
@@ -265,7 +263,7 @@ export default function DesignCard({
                                         }}
                                         className="cursor-pointer p-1 hover:bg-gray-50"
                                     />{" "}
-                                    <strong>"{title}"</strong> to confirm:
+                                    <strong>&quot;{title}&quot;</strong> to confirm:
                                 </p>
                                 <input
                                     type="text"

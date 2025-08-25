@@ -5,7 +5,7 @@ import React from "react";
 import ApiKeyProvider from "@/context/ApiKeyContext";
 import ProviderLayout from "@/components/ProviderLayout";
 import {getServerSession} from "next-auth";
-import {authOptions} from "@/app/api/auth/[...nextauth]/route";
+import {authOptions} from "@/lib/auth";
 
 const spaceGrotesk = Space_Grotesk({
     variable: "--font-space-grotesk",

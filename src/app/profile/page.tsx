@@ -287,7 +287,7 @@ export default function ProfilePage() {
                                                     month: 'long',
                                                     day: 'numeric'
                                                 })}</strong>.
-                                                You'll keep access until then.
+                                                You&apos;ll keep access until then.
                                             </p>
                                         </div>
                                     )}

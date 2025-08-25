@@ -1,5 +1,5 @@
 import {cn} from "@/lib/utils";
-import {FeatureInfoType} from "@/components/sections/hero/Features";
+import {FeatureInfoType} from "@/components/sections/home/Features";
 
 export default function FeatureCard({Icon, title, description, className, child}: FeatureInfoType) {
     return (

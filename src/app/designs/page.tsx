@@ -75,7 +75,7 @@ export default function DesignsPage() {
                             <div className="rounded-full text-white p-3 bg-blue-500/90"><GoPlus size={40} /></div>
                             <div className="text-center max-w-md">
                                 <h3 className="text-3xl font-bold text-blue-500">Create your first project</h3>
-                                <p className="text-gray-800 text-sm">You're just one step away from turning your ideas into reality. Let's get started.</p>
+                                <p className="text-gray-800 text-sm">You&apos;re just one step away from turning your ideas into reality. Let&apos;s get started.</p>
                             </div>
                             <Link href="/" className="cta-btn rounded-xl"><LuCirclePlus size={20} /> <span className="font-medium">Create New Design</span></Link>
                         </div>

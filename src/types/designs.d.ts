@@ -1,6 +1,6 @@
 export type DesignCardType = {
     id: string;
-    images: string[];
+    images: { url: string }[];
     title: string;
     prompt: string;
     createdAt: string;

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { AiOutlinePlus } from 'react-icons/ai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FAQItemType } from "@/components/sections/hero/FAQ";
 import { cn } from "@/lib/utils";
+import {FAQItemType} from "@/components/sections/home/FAQ";
 
 export default function FaqItem({ title, description }: FAQItemType) {
     const [isOpen, setIsOpen] = useState(false);

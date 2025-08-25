@@ -71,8 +71,8 @@ export default function FlowContent() {
                     }
                 );
 
-                let parsedNodes = response.data.design.nodes as FlowNode[];
-                let parsedEdges: Edge[] = (response.data.design.edges ?? []).map((e: any) => ({
+                const parsedNodes = response.data.design.nodes as FlowNode[];
+                const parsedEdges: Edge[] = (response.data.design.edges ?? []).map((e: any) => ({
                     ...e,
                     label: e.label ?? "→",
                 }));

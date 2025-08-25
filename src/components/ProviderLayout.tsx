@@ -30,7 +30,7 @@ function ProviderSync({ children }: { children: ReactNode }) {
         }
 
         const newToken = sessionData?.user?.accessToken;
-        // @ts-ignore
+        // @ts-expect-error [FIXME]: Zustand store typing not wired yet
         const currentToken = useAuthStore.getState().accessToken;
 
         if (newToken !== currentToken) {
