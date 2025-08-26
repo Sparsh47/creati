@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { HiOutlineSparkles } from "react-icons/hi2";
+import logo from "../../../public/logo.png";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -43,10 +44,10 @@ export default function Navbar() {
             >
                 <Link href="/" className="flex items-center gap-2">
                     <Image
-                        src="/logo.png"
-                        alt="Creati.AI"
                         width={1000}
                         height={1000}
+                        src={logo}
+                        alt="Creati.AI"
                         className="h-14 w-auto"
                     />
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-tl from-blue-800 via-blue-600 to-blue-400">

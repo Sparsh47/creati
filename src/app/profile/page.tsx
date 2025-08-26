@@ -110,8 +110,6 @@ export default function ProfilePage() {
                 }
             });
 
-            console.log("Response:", response.data.data);
-
             if(response.data.status==true) {
                 setName(response.data.data.name);
                 setInitialName(response.data.data.name);
@@ -126,6 +124,7 @@ export default function ProfilePage() {
         } catch (error) {
             toast.dismiss();
             toast.error("Error updating profile");
+            console.error(error);
             return;
         }
     }

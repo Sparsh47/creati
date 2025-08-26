@@ -24,28 +24,28 @@ export type Plan = {
 };
 
 export const pricingPlans: Plan[] = [
-    // {
-    //     id: 'starter',
-    //     title: 'Starter',
-    //     price: {
-    //         priceId: {
-    //             monthly: "price_1RsK2JSsg21IEsaK7V0VcxZX",
-    //             yearly: "price_1RsK2tSsg21IEsaK5e0JJOZJ"
-    //         },
-    //         monthly: '0',
-    //         yearly: '0'
-    //     },
-    //     duration: 'month',
-    //     description: 'Free Plan',
-    //     features: [
-    //         '3 architecture designs',
-    //         '2-user collaboration',
-    //         'Auto-save & versions',
-    //         'Basic templates',
-    //         '5 exports/mo',
-    //         'Mobile-responsive UI',
-    //     ],
-    // },
+    {
+        id: 'starter',
+        title: 'Starter',
+        price: {
+            priceId: {
+                monthly: "price_1RsK2JSsg21IEsaK7V0VcxZX",
+                yearly: "price_1RsK2tSsg21IEsaK5e0JJOZJ"
+            },
+            monthly: '0',
+            yearly: '0'
+        },
+        duration: 'month',
+        description: 'Free Plan',
+        features: [
+            '3 architecture designs',
+            '2-user collaboration',
+            'Auto-save & versions',
+            'Basic templates',
+            '5 exports/mo',
+            'Mobile-responsive UI',
+        ],
+    },
     {
         id: 'professional',
         title: 'Professional',
