@@ -4,10 +4,8 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { generateResponse } from "@/lib/gemini";
 import {generatePrompt, improvePrompt} from "@/constants/prompt";
-import { FlowNode, useDesignResponse } from "@/context/DesignResponseContext";
-import { Edge } from "@xyflow/react";
+import { useDesignResponse } from "@/context/DesignResponseContext";
 import { toast } from "react-hot-toast";
-import { useApiKey } from "@/context/ApiKeyContext";
 import {useSession} from "next-auth/react";
 import axios from "axios";
 import Spinner from "@/components/shared/Spinner";
@@ -27,9 +25,8 @@ export default function GenerateDesignSearch({
                                   }: SearchBarProps) {
     const router = useRouter();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { setNodes, setEdges, setLoading, setLoaderValue } = useDesignResponse();
+    const { setLoading, setLoaderValue } = useDesignResponse();
     const [promptLoading, setPromptLoading] = useState(false);
-    const { apiKey } = useApiKey();
     const {data: session} = useSession();
 
     useEffect(() => {
@@ -54,10 +51,6 @@ export default function GenerateDesignSearch({
 
     const sendDescription = async () => {
         try {
-            if (!apiKey) {
-                toast.error("No API key set.");
-                return;
-            }
             if (!session) {
                 toast.error("Authentication required");
                 return;
@@ -71,7 +64,7 @@ export default function GenerateDesignSearch({
             setTimeout(() => setLoaderValue(33), 3500);
             setTimeout(() => setLoaderValue(75), 5500);
 
-            const response = await generateResponse(generatePrompt(search), apiKey);
+            const response = await generateResponse(generatePrompt(search), process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
             const designResponse = await axios.post("/api/design", {
                 prompt: search,
@@ -98,15 +91,6 @@ export default function GenerateDesignSearch({
             const designId = designResponse.data.design.id;
             setLoaderValue(100);
 
-            // const parsedNodes = response.nodes as FlowNode[];
-            // const parsedEdges: Edge[] = (response.edges ?? []).map((e: any) => ({
-            //     ...e,
-            //     label: e.label ?? "→",
-            // }));
-            //
-            // setNodes(parsedNodes);
-            // setEdges(parsedEdges);
-
             router.push(`/flow/${designId}`);
             clearSearch();
             setLoading(false);
@@ -119,10 +103,6 @@ export default function GenerateDesignSearch({
 
     const aiPromptImprove = async () => {
         try {
-            if (!apiKey) {
-                toast.error("No API key set.");
-                return;
-            }
             if (!session) {
                 toast.error("Authentication required");
                 return;
@@ -134,7 +114,7 @@ export default function GenerateDesignSearch({
 
             setPromptLoading(true);
 
-            const enhancedPrompt = await improvePrompt(search, apiKey);
+            const enhancedPrompt = await improvePrompt(search, process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
             onSearch({ target: { value: enhancedPrompt } } as React.ChangeEvent<HTMLTextAreaElement>);
 
