@@ -71,7 +71,6 @@ export const authOptions: AuthOptions = {
 
                     return true;
                 } catch (err) {
-                    console.error("Failed to upsert Google user in backend:", err);
                     return false;
                 }
             }
@@ -105,7 +104,6 @@ export const authOptions: AuthOptions = {
                     accessTokenExpires: Date.now() + ACCESS_TOKEN_TTL
                 };
             } catch (err: any) {
-                console.error("Refresh endpoint failed:", err.response?.status, err.response?.data || err.message);
                 return token;
             }
         },
@@ -129,7 +127,6 @@ export const authOptions: AuthOptions = {
                     )
                 }
             } catch (e) {
-                console.error("Failed to revoke refresh token:", e);
             }
         }
     }

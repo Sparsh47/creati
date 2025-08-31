@@ -62,7 +62,6 @@ export default function CommunityDesignFlow() {
                 setPrompt(response.data.design.prompt);
 
             } catch (error) {
-                console.error('Failed to load design:', error);
                 setLoadingError('Failed to load design. Please try again.');
             } finally {
                 setIsLoading(false);
@@ -135,7 +134,6 @@ export default function CommunityDesignFlow() {
                         toast.error(data.message || "Something went wrong");
                 }
             } else {
-                console.error(e);
                 toast.error("Network error while adding design");
             }
         }

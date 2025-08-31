@@ -149,7 +149,6 @@ export default function AuthForm({ type }: { type: "signup" | "signin" }) {
             await update();
 
         } catch (error) {
-            console.error('Google sign-in failed:', error);
             setError("Google sign-in failed. Please try again.");
         } finally {
             setLoading(false);

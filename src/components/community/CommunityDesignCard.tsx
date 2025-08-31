@@ -61,7 +61,6 @@ export default function CommunityDesignCard({
                         toast.error(data.message || "Something went wrong");
                 }
             } else {
-                console.error(e);
                 toast.error("Network error while adding design");
             }
         }

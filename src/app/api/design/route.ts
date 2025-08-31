@@ -102,7 +102,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(response.data);
 
     }  catch (error: any) {
-        console.error('Error creating design:', error);
 
         if (error.response) {
             return NextResponse.json(

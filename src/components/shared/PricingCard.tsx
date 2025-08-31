@@ -31,8 +31,6 @@ export default function PricingCard({
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(false);
 
-    console.log(description, priceId, duration);
-
     const handleSubscription = async () => {
         try {
             if (status === "unauthenticated") {
@@ -87,7 +85,6 @@ export default function PricingCard({
 
             const errorMessage = error.response?.data?.message || "Error changing plan. Please try again.";
             toast.error(errorMessage);
-            console.error("Plan change error:", error.response?.data);
         } finally {
             setIsLoading(false);
         }

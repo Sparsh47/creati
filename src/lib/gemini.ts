@@ -18,11 +18,9 @@ export const generateResponse = async (prompt: string, apiKey: string) => {
                 const parsedJson = JSON.parse(jsonMatch[1]);
                 return parsedJson;
             } catch (e) {
-                console.error("Failed to parse JSON:", e);
                 throw new Error("Invalid JSON format in response.");
             }
         } else {
-            console.warn("No JSON block found. Raw text:", rawText);
             throw new Error("No JSON found in the response.");
         }
 

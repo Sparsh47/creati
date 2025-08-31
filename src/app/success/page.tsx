@@ -60,7 +60,6 @@ const SuccessPage: React.FC = () => {
         // ✅ Prevent duplicate processing
         const processedKey = `checkout_processed_${sessionId}`;
         if (sessionStorage.getItem(processedKey)) {
-            console.log('Checkout already processed for this session');
             setHasProcessed(true);
             setLoading(false);
 
@@ -71,7 +70,6 @@ const SuccessPage: React.FC = () => {
                     setSessionDetails(JSON.parse(cachedDetails));
                     setSubscriptionUpdated(true);
                 } catch (e) {
-                    console.error('Error parsing cached session details:', e);
                 }
             }
             return;
@@ -113,12 +111,10 @@ const SuccessPage: React.FC = () => {
             if (data.session.subscription && data.session.line_items?.data[0]?.price?.id) {
                 await updateSubscriptionInDatabase(data.session);
             } else {
-                console.warn('Missing subscription or price data, but showing success');
                 setSubscriptionUpdated(true);
             }
 
         } catch (err: any) {
-            console.error('Error processing checkout:', err);
             setError(err.message);
 
             // ✅ Remove processed flag on error so user can retry
@@ -142,7 +138,6 @@ const SuccessPage: React.FC = () => {
             const priceId = sessionData.line_items?.data[0]?.price?.id;
 
             if (!subscriptionId || !priceId) {
-                console.warn('Missing subscription or price ID, skipping database update');
                 setSubscriptionUpdated(true);
                 return;
             }
@@ -171,7 +166,6 @@ const SuccessPage: React.FC = () => {
                     errorData.message?.includes('already exists') ||
                     errorData.error?.includes('already completed') ||
                     errorData.error?.includes('already exists')) {
-                    console.log('Checkout already completed, showing success');
                     setSubscriptionUpdated(true);
                     return;
                 }
@@ -181,10 +175,8 @@ const SuccessPage: React.FC = () => {
 
             const result = await updateResponse.json();
             setSubscriptionUpdated(true);
-            console.log('Database update successful:', result);
 
         } catch (error: any) {
-            console.error('Error updating subscription in database:', error);
 
             // ✅ Don't show error for duplicate completions
             if (error.message?.includes('already completed') ||

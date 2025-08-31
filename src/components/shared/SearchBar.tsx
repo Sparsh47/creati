@@ -40,7 +40,6 @@ export default function SearchBar({
                return;
             }
         } catch (error) {
-            console.error("Failed to fetch or parse Gemini response:", error);
         }
     };
 

@@ -181,7 +181,6 @@ export default function FlowContent() {
                 );
                 return true;
             } catch (error) {
-                console.error("Screenshot upload failed silently:", error);
                 return false;
             }
         },
@@ -214,7 +213,6 @@ export default function FlowContent() {
             toast.success("Design updated successfully.");
             setIsChanged(false);
         } catch (err) {
-            console.error("Error saving design:", err);
             toast.error("Failed to save design.");
         }
     };
@@ -268,7 +266,6 @@ export default function FlowContent() {
             await uploadScreenshotToBackend(dataUrl);
             return true;
         } catch (error) {
-            console.error("Step edge screenshot failed:", error);
             return false;
         }
     }, [nodes, uploadScreenshotToBackend, designId, getNodesBounds]);

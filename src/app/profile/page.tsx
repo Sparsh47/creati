@@ -46,8 +46,6 @@ export default function ProfilePage() {
                         }
                     );
 
-                    console.log(response);
-
                     if (response.data.status) {
                         const user = response.data?.data || {};
                         const userName = user.name || "";
@@ -90,7 +88,6 @@ export default function ProfilePage() {
                     }
 
                 } catch (error) {
-                    console.error("Failed to fetch profile:", error);
                     toast.error("Failed to load profile data");
                 }
             })();
@@ -124,7 +121,6 @@ export default function ProfilePage() {
         } catch (error) {
             toast.dismiss();
             toast.error("Error updating profile");
-            console.error(error);
             return;
         }
     }
@@ -157,7 +153,6 @@ export default function ProfilePage() {
             }
 
         } catch (error: any) {
-            console.error("Cancel plan error:", error);
             toast.dismiss();
             toast.error(error.response?.data?.message || "Error cancelling plan. Try again later.");
         } finally {
@@ -188,7 +183,6 @@ export default function ProfilePage() {
             }
 
         } catch (error: any) {
-            console.error("Reactivate plan error:", error);
             toast.dismiss();
             toast.error("Error reactivating plan. Try again later.");
         }
